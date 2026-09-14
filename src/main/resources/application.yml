@@ -1,0 +1,30 @@
+server:
+  port: 8080
+
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:13306/helpdesk?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+    username: scott
+    password: kosa1004
+    hikari:
+      pool-name: HelpdeskHikariPool
+      maximum-pool-size: 10      # 풀에 유지할 최대 커넥션 수
+      minimum-idle: 2            # 유휴 상태로 유지할 최소 커넥션 수
+      connection-timeout: 3000   # 커넥션 획득 대기 시간(ms) - 테스트용으로 짧게
+      idle-timeout: 60000        # 유휴 커넥션 제거 시간(ms)
+      max-lifetime: 1800000      # 커넥션 최대 생존 시간(ms)
+  thymeleaf:
+    cache: false
+
+mybatis:
+  mapper-locations: classpath:mapper/**/*.xml
+  configuration:
+    map-underscore-to-camel-case: true
+  type-aliases-package: com.helpdesk.user.domain
+
+logging:
+  level:
+    "[com.helpdesk]": debug
+    "[org.springframework.security]": debug
+    "[com.zaxxer.hikari]": debug   # HikariCP 풀 생성/커넥션 획득 로그 확인용
