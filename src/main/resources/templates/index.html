@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>HelpDesk</title>
+    <link rel="stylesheet" th:href="@{/css/layout.css}">
+</head>
+<body>
+
+<nav class="navbar">
+    <a class="navbar-brand" th:href="@{/}">HelpDesk</a>
+
+    <div class="navbar-right" sec:authorize="isAuthenticated()">
+        <span class="navbar-user">
+            <span sec:authentication="name"></span>님
+            <span class="badge-role" sec:authentication="authorities"></span>
+        </span>
+        <form th:action="@{/user/logout}" method="post" style="margin: 0;">
+            <button type="submit" class="btn-outline">로그아웃</button>
+        </form>
+    </div>
+
+    <div class="navbar-right" sec:authorize="isAnonymous()">
+        <a class="nav-link" th:href="@{/user/login}">로그인</a>
+        <a class="nav-link-primary" th:href="@{/user/signup}">회원가입</a>
+    </div>
+</nav>
+
+<div class="hero">
+    <p class="hero-title" sec:authorize="isAuthenticated()">
+        <span sec:authentication="name"></span>님, 어서오세요
+    </p>
+    <p class="hero-title" sec:authorize="isAnonymous()">
+        문의 등록부터 처리까지, 한 곳에서
+    </p>
+    <p class="hero-subtitle">
+        HelpDesk에서 문의를 등록하고, 처리 상태를 실시간으로 확인하세요.
+    </p>
+</div>
+
+</body>
+</html>
