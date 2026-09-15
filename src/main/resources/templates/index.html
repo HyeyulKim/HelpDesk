@@ -11,6 +11,7 @@
     <a class="navbar-brand" th:href="@{/}">HelpDesk</a>
 
     <div class="navbar-right" sec:authorize="isAuthenticated()">
+        <a class="nav-link" th:href="@{/requests}">문의함</a>
         <span class="navbar-user">
             <span sec:authentication="name"></span>님
             <span class="badge-role" sec:authentication="authorities"></span>
@@ -36,6 +37,7 @@
     <p class="hero-subtitle">
         HelpDesk에서 문의를 등록하고, 처리 상태를 실시간으로 확인하세요.
     </p>
+    <a class="nav-link-primary" sec:authorize="isAuthenticated()" th:href="@{/requests}">문의함 바로가기</a>
 </div>
 
 </body>
