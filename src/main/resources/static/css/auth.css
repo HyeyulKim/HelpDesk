@@ -2,15 +2,12 @@
     box-sizing: border-box;
 }
 
-body {
-    margin: 0;
+.centered-page {
     min-height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: #f4f6f8;
-    font-family: "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
-    color: #2b2f33;
+    padding: 24px 0;
 }
 
 .auth-card {
