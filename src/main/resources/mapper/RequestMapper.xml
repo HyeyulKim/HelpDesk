@@ -39,4 +39,34 @@
         </where>
     </select>
 
+    <select id="findById" resultType="com.helpdesk.request.dto.RequestDetailDto">
+        SELECT
+            r.request_id     AS requestId,
+            r.title          AS title,
+            r.content        AS content,
+            r.status         AS status,
+            r.priority       AS priority,
+            r.requester_id   AS requesterId,
+            requester.name   AS requesterName,
+            assignee.name    AS assigneeName,
+            r.created_at     AS createdAt,
+            r.updated_at     AS updatedAt
+        FROM requests r
+        JOIN users requester ON r.requester_id = requester.user_id
+        LEFT JOIN users assignee ON r.assignee_id = assignee.user_id
+        WHERE r.request_id = #{requestId}
+    </select>
+
+    <update id="updateStatus">
+        UPDATE requests
+        SET status = #{status},
+            assignee_id = COALESCE(assignee_id, #{assigneeId}),
+            updated_at = CURRENT_TIMESTAMP
+        WHERE request_id = #{requestId}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM requests WHERE request_id = #{requestId}
+    </delete>
+
 </mapper>

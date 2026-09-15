@@ -2,22 +2,33 @@ package com.helpdesk.request.mapper;
 
 import com.helpdesk.request.domain.Request;
 import com.helpdesk.request.domain.RequestStatus;
+import com.helpdesk.request.dto.RequestDetailDto;
 import com.helpdesk.request.dto.RequestListItemDto;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 @Mapper
 public interface RequestMapper {
 
-    void insertRequest(Request request); //문의 1건 저장
+    void insertRequest(Request request);
 
-    List<RequestListItemDto> findRequests( //상태 필터 + 페이징된 목록 조회
+    List<RequestListItemDto> findRequests(
             @Param("status") RequestStatus status,
             @Param("offset") int offset,
             @Param("size") int size
     );
 
-    int countRequests(@Param("status") RequestStatus status); //페이징 계산에 필요한 전체 건수 조회
+    int countRequests(@Param("status") RequestStatus status);
+
+    Optional<RequestDetailDto> findById(@Param("requestId") Long requestId);
+
+    void updateStatus(
+            @Param("requestId") Long requestId,
+            @Param("status") RequestStatus status,
+            @Param("assigneeId") Long assigneeId
+    );
+    void deleteById(@Param("requestId") Long requestId);
 }

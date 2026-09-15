@@ -4,13 +4,17 @@ import com.helpdesk.request.domain.Request;
 import com.helpdesk.request.domain.RequestPriority;
 import com.helpdesk.request.domain.RequestStatus;
 import com.helpdesk.request.dto.RequestCreateDto;
+import com.helpdesk.request.dto.RequestDetailDto;
 import com.helpdesk.request.dto.RequestListItemDto;
 import com.helpdesk.request.mapper.RequestMapper;
+import com.helpdesk.user.domain.Role;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @Service
 @RequiredArgsConstructor
@@ -22,13 +26,12 @@ public class RequestService {
 
     @Transactional
     public void createRequest(Long requesterId, RequestCreateDto dto) {
-        //사용자가 우선순위를 안 골랐으면 기본값(NORMAL)을 채워넣음
         RequestPriority priority = (dto.getPriority() != null) ? dto.getPriority() : RequestPriority.NORMAL;
 
         Request request = Request.builder()
                 .title(dto.getTitle())
                 .content(dto.getContent())
-                .status(RequestStatus.WAITING) //상태는 WAITING으로 시작
+                .status(RequestStatus.WAITING)
                 .priority(priority)
                 .requesterId(requesterId)
                 .assigneeId(null)
@@ -45,5 +48,46 @@ public class RequestService {
     public int getTotalPages(RequestStatus status) {
         int totalCount = requestMapper.countRequests(status);
         return (int) Math.ceil((double) totalCount / PAGE_SIZE);
+    }
+
+    public RequestDetailDto getRequestDetail(Long requestId) {
+        return requestMapper.findById(requestId)
+                .orElseThrow(() -> new NoSuchElementException("존재하지 않는 문의입니다. id=" + requestId));
+    }
+
+    /**
+     * 문의 상태를 다음 단계로 변경한다 (대기 -> 처리중 -> 완료).
+     * 담당자(AGENT) 또는 관리자(ADMIN)만 변경할 수 있다.
+     */
+    @Transactional
+    public void advanceStatus(Long requestId, Long currentUserId, Role currentUserRole) {
+        if (currentUserRole != Role.AGENT && currentUserRole != Role.ADMIN) {
+            throw new AccessDeniedException("담당자 또는 관리자만 상태를 변경할 수 있습니다.");
+        }
+
+        RequestDetailDto request = getRequestDetail(requestId);
+        RequestStatus nextStatus = request.getStatus().next();
+        if (nextStatus == null) {
+            throw new IllegalStateException("이미 완료된 문의는 상태를 변경할 수 없습니다.");
+        }
+
+        requestMapper.updateStatus(requestId, nextStatus, currentUserId);
+    }
+
+    /**
+     * 문의를 삭제한다. 작성자 본인 또는 관리자만 삭제할 수 있다.
+     */
+    @Transactional
+    public void deleteRequest(Long requestId, Long currentUserId, Role currentUserRole) {
+        RequestDetailDto request = getRequestDetail(requestId);
+
+        boolean isOwner = request.getRequesterId().equals(currentUserId);
+        boolean isAdmin = currentUserRole == Role.ADMIN;
+
+        if (!isOwner && !isAdmin) {
+            throw new AccessDeniedException("작성자 본인 또는 관리자만 삭제할 수 있습니다.");
+        }
+
+        requestMapper.deleteById(requestId);
     }
 }
