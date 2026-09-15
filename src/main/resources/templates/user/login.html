@@ -3,9 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <title>로그인 - HelpDesk</title>
+    <link rel="stylesheet" th:href="@{/css/layout.css}">
     <link rel="stylesheet" th:href="@{/css/auth.css}">
 </head>
 <body>
+<div class="centered-page">
 <div class="auth-card">
     <p class="auth-title">HelpDesk</p>
     <p class="auth-subtitle">문의 등록부터 처리까지, 한 곳에서</p>
@@ -32,6 +34,7 @@
     <p class="auth-footer">
         아직 계정이 없으신가요? <a th:href="@{/user/signup}">회원가입</a>
     </p>
+</div>
 </div>
 </body>
 </html>

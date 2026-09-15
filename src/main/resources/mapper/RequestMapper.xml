@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.helpdesk.request.mapper.RequestMapper">
+
+    <insert id="insertRequest" useGeneratedKeys="true" keyProperty="requestId"
+            parameterType="com.helpdesk.request.domain.Request">
+        INSERT INTO requests (title, content, status, priority, requester_id, assignee_id)
+        VALUES (#{title}, #{content}, #{status}, #{priority}, #{requesterId}, #{assigneeId})
+    </insert>
+
+    <select id="findRequests" resultType="com.helpdesk.request.dto.RequestListItemDto">
+        SELECT
+            r.request_id     AS requestId,
+            r.title          AS title,
+            r.status         AS status,
+            r.priority       AS priority,
+            requester.name   AS requesterName,
+            assignee.name    AS assigneeName,
+            r.created_at     AS createdAt
+        FROM requests r
+        JOIN users requester ON r.requester_id = requester.user_id
+        LEFT JOIN users assignee ON r.assignee_id = assignee.user_id
+        <where>
+            <if test="status != null">
+                AND r.status = #{status}
+            </if>
+        </where>
+        ORDER BY r.created_at DESC
+        LIMIT #{size} OFFSET #{offset}
+    </select>
+
+    <select id="countRequests" resultType="int">
+        SELECT COUNT(*)
+        FROM requests r
+        <where>
+            <if test="status != null">
+                AND r.status = #{status}
+            </if>
+        </where>
+    </select>
+
+</mapper>

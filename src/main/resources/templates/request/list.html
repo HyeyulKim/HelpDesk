@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>문의함 - HelpDesk</title>
+    <link rel="stylesheet" th:href="@{/css/layout.css}">
+</head>
+<body>
+
+<nav class="navbar">
+    <a class="navbar-brand" th:href="@{/}">HelpDesk</a>
+    <div class="navbar-right">
+        <a class="nav-link" th:href="@{/requests}">문의함</a>
+        <span class="navbar-user" sec:authorize="isAuthenticated()">
+            <span sec:authentication="name"></span>님
+        </span>
+        <form th:action="@{/user/logout}" method="post" style="margin: 0;">
+            <button type="submit" class="btn-outline">로그아웃</button>
+        </form>
+    </div>
+</nav>
+
+<div class="page-container">
+
+    <div class="page-header">
+        <h2 class="page-title">문의함</h2>
+        <a class="btn-link" th:href="@{/requests/new}">+ 새 문의 등록</a>
+    </div>
+
+    <form class="filter-bar" th:action="@{/requests}" method="get">
+        <select name="status" class="filter-select" onchange="this.form.submit()">
+            <option value="" th:selected="${status == null}">전체 상태</option>
+            <option value="WAITING" th:selected="${status?.name() == 'WAITING'}">대기</option>
+            <option value="IN_PROGRESS" th:selected="${status?.name() == 'IN_PROGRESS'}">처리중</option>
+            <option value="DONE" th:selected="${status?.name() == 'DONE'}">완료</option>
+        </select>
+    </form>
+
+    <table class="request-table">
+        <thead>
+        <tr>
+            <th style="width: 60px;">번호</th>
+            <th>제목</th>
+            <th style="width: 90px;">상태</th>
+            <th style="width: 80px;">우선순위</th>
+            <th style="width: 110px;">요청자</th>
+            <th style="width: 110px;">담당자</th>
+            <th style="width: 140px;">등록일</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:if="${#lists.isEmpty(requests)}" class="empty-row">
+            <td colspan="7">등록된 문의가 없습니다.</td>
+        </tr>
+        <tr th:each="req : ${requests}">
+            <td th:text="${req.requestId}"></td>
+            <td th:text="${req.title}"></td>
+            <td>
+                <span class="badge"
+                      th:classappend="'badge-' + ${#strings.toLowerCase(req.status.name())}"
+                      th:text="${req.status.name() == 'WAITING'} ? '대기' : (${req.status.name() == 'IN_PROGRESS'} ? '처리중' : '완료')">
+                </span>
+            </td>
+            <td>
+                <span class="badge"
+                      th:classappend="'badge-' + ${#strings.toLowerCase(req.priority.name())}"
+                      th:text="${req.priority.name() == 'URGENT'} ? '긴급' : (${req.priority.name() == 'NORMAL'} ? '보통' : '낮음')">
+                </span>
+            </td>
+            <td th:text="${req.requesterName}"></td>
+            <td th:text="${req.assigneeName} ?: '미배정'"></td>
+            <td th:text="${#temporals.format(req.createdAt, 'yyyy-MM-dd HH:mm')}"></td>
+        </tr>
+        </tbody>
+    </table>
+
+    <div class="pagination" th:if="${totalPages > 1}">
+        <a th:each="p : ${#numbers.sequence(1, totalPages)}"
+           class="page-link"
+           th:classappend="${p == page} ? 'active' : ''"
+           th:href="@{/requests(page=${p}, status=${status})}"
+           th:text="${p}">
+        </a>
+    </div>
+
+</div>
+
+</body>
+</html>
