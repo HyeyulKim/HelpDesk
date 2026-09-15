@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${request.title} + ' - HelpDesk'">문의 상세 - HelpDesk</title>
+    <link rel="stylesheet" th:href="@{/css/layout.css}">
+</head>
+<body>
+
+<nav class="navbar">
+    <a class="navbar-brand" th:href="@{/}">HelpDesk</a>
+    <div class="navbar-right">
+        <a class="nav-link" th:href="@{/requests}">문의함</a>
+        <span class="navbar-user" sec:authorize="isAuthenticated()">
+            <span sec:authentication="name"></span>님
+        </span>
+        <form th:action="@{/user/logout}" method="post" style="margin: 0;">
+            <button type="submit" class="btn-outline">로그아웃</button>
+        </form>
+    </div>
+</nav>
+
+<div class="page-container">
+
+    <div class="page-header">
+        <h2 class="page-title" th:text="${request.title}"></h2>
+        <a class="btn-outline" th:href="@{/requests}">목록으로</a>
+    </div>
+
+    <div class="detail-meta">
+        <span class="badge"
+              th:classappend="'badge-' + ${#strings.toLowerCase(request.status.name())}"
+              th:text="${request.status.name() == 'WAITING'} ? '대기' : (${request.status.name() == 'IN_PROGRESS'} ? '처리중' : '완료')">
+        </span>
+        <span class="badge"
+              th:classappend="'badge-' + ${#strings.toLowerCase(request.priority.name())}"
+              th:text="${request.priority.name() == 'URGENT'} ? '긴급' : (${request.priority.name() == 'NORMAL'} ? '보통' : '낮음')">
+        </span>
+    </div>
+
+    <dl class="detail-info-grid">
+        <dt>요청자</dt>
+        <dd th:text="${request.requesterName}"></dd>
+        <dt>담당자</dt>
+        <dd th:text="${request.assigneeName} ?: '미배정'"></dd>
+        <dt>등록일</dt>
+        <dd th:text="${#temporals.format(request.createdAt, 'yyyy-MM-dd HH:mm')}"></dd>
+        <dt>수정일</dt>
+        <dd th:text="${#temporals.format(request.updatedAt, 'yyyy-MM-dd HH:mm')}"></dd>
+    </dl>
+
+    <div class="detail-content" th:text="${request.content}"></div>
+
+    <div class="detail-actions">
+        <form th:if="${(currentUserRole.name() == 'AGENT' or currentUserRole.name() == 'ADMIN') and request.status.name() != 'DONE'}"
+              th:action="@{/requests/{id}/status(id=${request.requestId})}" method="post">
+            <button type="submit" class="btn-outline">
+                <span th:if="${request.status.name() == 'WAITING'}">처리 시작 (처리중으로 변경)</span>
+                <span th:if="${request.status.name() == 'IN_PROGRESS'}">처리 완료 (완료로 변경)</span>
+            </button>
+        </form>
+
+        <form th:if="${currentUserId == request.requesterId or currentUserRole.name() == 'ADMIN'}"
+              th:action="@{/requests/{id}/delete(id=${request.requestId})}" method="post"
+              onsubmit="return confirm('정말 삭제하시겠습니까?');">
+            <button type="submit" class="btn-danger">삭제</button>
+        </form>
+    </div>
+
+</div>
+
+</body>
+</html>

@@ -2,6 +2,7 @@ package com.helpdesk.request.controller;
 
 import com.helpdesk.request.domain.RequestStatus;
 import com.helpdesk.request.dto.RequestCreateDto;
+import com.helpdesk.request.dto.RequestDetailDto;
 import com.helpdesk.request.dto.RequestListItemDto;
 import com.helpdesk.request.service.RequestService;
 import com.helpdesk.security.CustomUserDetails;
@@ -27,7 +28,7 @@ public class RequestController {
             @RequestParam(required = false) RequestStatus status,
             @RequestParam(defaultValue = "1") int page,
             Model model
-    ) { //목록 화면
+    ) {
         List<RequestListItemDto> requests = requestService.getRequests(status, page);
         int totalPages = Math.max(requestService.getTotalPages(status), 1);
 
@@ -39,7 +40,7 @@ public class RequestController {
     }
 
     @GetMapping("/new")
-    public String createForm(Model model) { //빈 등록 폼 화면을 보여줌
+    public String createForm(Model model) {
         model.addAttribute("requestCreateDto", new RequestCreateDto());
         return "request/form";
     }
@@ -48,15 +49,55 @@ public class RequestController {
     public String create(
             @Valid @ModelAttribute RequestCreateDto dto,
             BindingResult bindingResult,
-            @AuthenticationPrincipal CustomUserDetails userDetails, //현재 로그인한 사용자 정보를 스프링 시큐리티가 자동으로 주입
+            @AuthenticationPrincipal CustomUserDetails userDetails,
             Model model
-    ) { //등록 폼 제출 처리
+    ) {
         if (bindingResult.hasErrors()) {
             return "request/form";
         }
 
-        Long requesterId = userDetails.getUser().getUserId(); //"누가 이 문의를 등록했는지"를 서버가 직접 결정
+        Long requesterId = userDetails.getUser().getUserId();
         requestService.createRequest(requesterId, dto);
+        return "redirect:/requests";
+    }
+
+    @GetMapping("/{requestId}")
+    public String detail(
+            @PathVariable Long requestId,
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            Model model
+    ) {
+        RequestDetailDto request = requestService.getRequestDetail(requestId);
+        model.addAttribute("request", request);
+        model.addAttribute("currentUserId", userDetails.getUser().getUserId());
+        model.addAttribute("currentUserRole", userDetails.getUser().getRole());
+        return "request/detail";
+    }
+
+    @PostMapping("/{requestId}/status")
+    public String advanceStatus(
+            @PathVariable Long requestId,
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            Model model
+    ) {
+        requestService.advanceStatus(
+                requestId,
+                userDetails.getUser().getUserId(),
+                userDetails.getUser().getRole()
+        );
+        return "redirect:/requests/" + requestId;
+    }
+
+    @PostMapping("/{requestId}/delete")
+    public String delete(
+            @PathVariable Long requestId,
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        requestService.deleteRequest(
+                requestId,
+                userDetails.getUser().getUserId(),
+                userDetails.getUser().getRole()
+        );
         return "redirect:/requests";
     }
 }

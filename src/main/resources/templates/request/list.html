@@ -54,7 +54,7 @@
         </tr>
         <tr th:each="req : ${requests}">
             <td th:text="${req.requestId}"></td>
-            <td th:text="${req.title}"></td>
+            <td><a th:href="@{/requests/{id}(id=${req.requestId})}" th:text="${req.title}" style="color:#2b2f33; text-decoration:none; font-weight:500;"></a></td>
             <td>
                 <span class="badge"
                       th:classappend="'badge-' + ${#strings.toLowerCase(req.status.name())}"
