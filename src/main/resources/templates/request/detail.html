@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title th:text="${request.title} + ' - HelpDesk'">문의 상세 - HelpDesk</title>
     <link rel="stylesheet" th:href="@{/css/layout.css}">
+    <link rel="stylesheet" th:href="@{/css/auth.css}">
 </head>
 <body>
 
@@ -67,7 +68,79 @@
         </form>
     </div>
 
+    <div class="comment-section">
+        <p class="comment-section-title">
+            <i class="comment-icon"></i>댓글 <span class="comment-count" th:text="${#lists.size(comments)}"></span>
+        </p>
+
+        <div class="comment-list">
+            <div class="comment-empty" th:if="${#lists.isEmpty(comments)}">
+                아직 댓글이 없습니다. 첫 댓글을 남겨보세요.
+            </div>
+
+            <div class="comment-item" th:each="comment : ${comments}">
+
+                <div class="comment-avatar" th:text="${#strings.substring(comment.authorName, 0, 1)}"></div>
+
+                <div class="comment-body">
+                    <div class="comment-view" th:id="'view-' + ${comment.commentId}">
+                        <div class="comment-header">
+                            <span class="comment-author" th:text="${comment.authorName}"></span>
+                            <span class="comment-date" th:text="${#temporals.format(comment.createdAt, 'yyyy-MM-dd HH:mm')}"></span>
+
+                            <span class="comment-actions" th:if="${currentUserId == comment.authorId}">
+                                <button type="button" class="comment-action-btn"
+                                        th:onclick="'toggleCommentEdit(' + ${comment.commentId} + ', true)'">수정</button>
+                            </span>
+                            <form class="comment-actions"
+                                  th:if="${currentUserId == comment.authorId or currentUserRole.name() == 'ADMIN'}"
+                                  th:action="@{/requests/{rid}/comments/{cid}/delete(rid=${request.requestId},cid=${comment.commentId})}"
+                                  method="post" onsubmit="return confirm('댓글을 삭제하시겠습니까?');">
+                                <button type="submit" class="comment-action-btn comment-action-danger">삭제</button>
+                            </form>
+                        </div>
+                        <div class="comment-content" th:text="${comment.content}"></div>
+                    </div>
+
+                    <form class="comment-edit-form" th:id="'edit-' + ${comment.commentId}"
+                          th:if="${currentUserId == comment.authorId}"
+                          th:action="@{/requests/{rid}/comments/{cid}/edit(rid=${request.requestId},cid=${comment.commentId})}"
+                          method="post" style="display:none;">
+                        <textarea name="content" th:text="${comment.content}"></textarea>
+                        <div class="comment-edit-actions">
+                            <button type="button" class="comment-btn comment-btn-cancel"
+                                    th:onclick="'toggleCommentEdit(' + ${comment.commentId} + ', false)'">취소</button>
+                            <button type="submit" class="comment-btn comment-btn-save">저장</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <form class="comment-form"
+              th:if="${currentUserId == request.requesterId or currentUserId == request.assigneeId or currentUserRole.name() == 'ADMIN'}"
+              th:action="@{/requests/{id}/comments(id=${request.requestId})}"
+              th:object="${commentCreateDto}" method="post">
+            <textarea th:field="*{content}" placeholder="댓글을 입력하세요"></textarea>
+            <button type="submit" class="btn-primary" style="width: 90px;">등록</button>
+        </form>
+        <p class="comment-guard"
+           th:unless="${currentUserId == request.requesterId or currentUserId == request.assigneeId or currentUserRole.name() == 'ADMIN'}">
+            이 문의의 요청자, 담당자만 댓글을 작성할 수 있습니다.
+        </p>
+    </div>
+
 </div>
+
+<script th:inline="none">
+    function toggleCommentEdit(commentId, showEdit) {
+        var viewEl = document.getElementById('view-' + commentId);
+        var editEl = document.getElementById('edit-' + commentId);
+        if (!viewEl || !editEl) return;
+        viewEl.style.display = showEdit ? 'none' : 'block';
+        editEl.style.display = showEdit ? 'block' : 'none';
+    }
+</script>
 
 </body>
 </html>
