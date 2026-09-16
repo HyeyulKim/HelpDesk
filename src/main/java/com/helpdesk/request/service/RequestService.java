@@ -50,6 +50,26 @@ public class RequestService {
         return (int) Math.ceil((double) totalCount / PAGE_SIZE);
     }
 
+    public List<RequestListItemDto> getMyRequests(Long requesterId, int page) {
+        int offset = (page - 1) * PAGE_SIZE;
+        return requestMapper.findByRequesterId(requesterId, offset, PAGE_SIZE);
+    }
+
+    public int getMyRequestsTotalPages(Long requesterId) {
+        int totalCount = requestMapper.countByRequesterId(requesterId);
+        return (int) Math.ceil((double) totalCount / PAGE_SIZE);
+    }
+
+    public List<RequestListItemDto> getAssignedRequests(Long assigneeId, int page) {
+        int offset = (page - 1) * PAGE_SIZE;
+        return requestMapper.findByAssigneeId(assigneeId, offset, PAGE_SIZE);
+    }
+
+    public int getAssignedRequestsTotalPages(Long assigneeId) {
+        int totalCount = requestMapper.countByAssigneeId(assigneeId);
+        return (int) Math.ceil((double) totalCount / PAGE_SIZE);
+    }
+
     public RequestDetailDto getRequestDetail(Long requestId) {
         return requestMapper.findById(requestId)
                 .orElseThrow(() -> new NoSuchElementException("존재하지 않는 문의입니다. id=" + requestId));
@@ -89,13 +109,5 @@ public class RequestService {
         }
 
         requestMapper.deleteById(requestId);
-    }
-
-    public List<RequestListItemDto> getMyRequests(Long requesterId) {
-        return requestMapper.findByRequesterId(requesterId);
-    }
-
-    public List<RequestListItemDto> getAssignedRequests(Long assigneeId) {
-        return requestMapper.findByAssigneeId(assigneeId);
     }
 }

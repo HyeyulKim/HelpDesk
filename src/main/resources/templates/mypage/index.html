@@ -33,7 +33,7 @@
             <p class="profile-name">
                 <span th:text="${user.name}"></span>
                 <span class="badge-role" th:if="${user.role.name() != 'USER'}"
-                    th:text="${user.role.name() == 'AGENT'} ? '담당자' : '관리자'"></span>
+                      th:text="${user.role.name() == 'AGENT'} ? '담당자' : '관리자'"></span>
             </p>
             <p class="profile-meta">
                 <span th:text="${user.username}"></span> · <span th:text="${user.email}"></span>
@@ -78,6 +78,15 @@
         </table>
 
         <p class="mypage-empty" th:if="${#lists.isEmpty(myRequests)}">등록한 문의가 없습니다.</p>
+
+        <div class="pagination" th:if="${myTotalPages > 1}">
+            <a th:each="p : ${#numbers.sequence(1, myTotalPages)}"
+               class="page-link"
+               th:classappend="${p == myPage} ? 'active' : ''"
+               th:href="@{/mypage(myPage=${p}, assignedPage=${assignedPage})}"
+               th:text="${p}">
+            </a>
+        </div>
     </div>
 
     <div class="mypage-section" th:if="${isAgentOrAdmin}">
@@ -117,6 +126,15 @@
         </table>
 
         <p class="mypage-empty" th:if="${#lists.isEmpty(assignedRequests)}">담당 중인 문의가 없습니다.</p>
+
+        <div class="pagination" th:if="${assignedTotalPages > 1}">
+            <a th:each="p : ${#numbers.sequence(1, assignedTotalPages)}"
+               class="page-link"
+               th:classappend="${p == assignedPage} ? 'active' : ''"
+               th:href="@{/mypage(myPage=${myPage}, assignedPage=${p})}"
+               th:text="${p}">
+            </a>
+        </div>
     </div>
 
 </div>

@@ -30,9 +30,22 @@ public interface RequestMapper {
             @Param("status") RequestStatus status,
             @Param("assigneeId") Long assigneeId
     );
+
     void deleteById(@Param("requestId") Long requestId);
 
-    List<RequestListItemDto> findByRequesterId(@Param("requesterId") Long requesterId);
-    
-    List<RequestListItemDto> findByAssigneeId(@Param("assigneeId") Long assigneeId);
+    List<RequestListItemDto> findByRequesterId(
+            @Param("requesterId") Long requesterId,
+            @Param("offset") int offset,
+            @Param("size") int size
+    );
+
+    int countByRequesterId(@Param("requesterId") Long requesterId);
+
+    List<RequestListItemDto> findByAssigneeId(
+            @Param("assigneeId") Long assigneeId,
+            @Param("offset") int offset,
+            @Param("size") int size
+    );
+
+    int countByAssigneeId(@Param("assigneeId") Long assigneeId);
 }

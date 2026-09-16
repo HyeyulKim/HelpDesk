@@ -84,7 +84,11 @@
         LEFT JOIN users assignee ON r.assignee_id = assignee.user_id
         WHERE r.requester_id = #{requesterId}
         ORDER BY r.created_at DESC
-        LIMIT 20
+        LIMIT #{size} OFFSET #{offset}
+    </select>
+
+    <select id="countByRequesterId" resultType="int">
+        SELECT COUNT(*) FROM requests WHERE requester_id = #{requesterId}
     </select>
 
     <select id="findByAssigneeId" resultType="com.helpdesk.request.dto.RequestListItemDto">
@@ -101,7 +105,11 @@
         LEFT JOIN users assignee ON r.assignee_id = assignee.user_id
         WHERE r.assignee_id = #{assigneeId}
         ORDER BY r.created_at DESC
-        LIMIT 20
+        LIMIT #{size} OFFSET #{offset}
+    </select>
+
+    <select id="countByAssigneeId" resultType="int">
+        SELECT COUNT(*) FROM requests WHERE assignee_id = #{assigneeId}
     </select>
 
 </mapper>
