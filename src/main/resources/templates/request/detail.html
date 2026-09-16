@@ -54,6 +54,9 @@
     <div class="detail-content" th:text="${request.content}"></div>
 
     <div class="detail-actions">
+        <a th:if="${currentUserId == request.requesterId and request.status.name() == 'WAITING'}"
+           class="btn-outline" th:href="@{/requests/{id}/edit(id=${request.requestId})}">수정</a>
+
         <form th:if="${(currentUserRole.name() == 'AGENT' or currentUserRole.name() == 'ADMIN') and request.status.name() != 'DONE'}"
               th:action="@{/requests/{id}/status(id=${request.requestId})}" method="post">
             <button type="submit" class="btn-outline">

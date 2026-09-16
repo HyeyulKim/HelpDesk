@@ -110,4 +110,35 @@ public class RequestService {
 
         requestMapper.deleteById(requestId);
     }
+
+    /**
+     * 수정 폼에 채울 문의를 조회하면서, 수정 가능한 상태인지(작성자 본인 + 대기 상태)도 같이 검증한다.
+     */
+    public RequestDetailDto getRequestForEdit(Long requestId, Long currentUserId) {
+        RequestDetailDto request = getRequestDetail(requestId);
+        assertEditable(request, currentUserId);
+        return request;
+    }
+
+    /**
+     * 문의를 수정한다. 작성자 본인만, 그리고 아직 대기(WAITING) 상태일 때만 가능하다.
+     * (담당자가 이미 처리를 시작한 문의 내용이 바뀌면 혼란스러우므로)
+     */
+    @Transactional
+    public void updateRequest(Long requestId, Long currentUserId, RequestCreateDto dto) {
+        RequestDetailDto request = getRequestDetail(requestId);
+        assertEditable(request, currentUserId);
+
+        RequestPriority priority = (dto.getPriority() != null) ? dto.getPriority() : RequestPriority.NORMAL;
+        requestMapper.updateContent(requestId, dto.getTitle(), dto.getContent(), priority);
+    }
+
+    private void assertEditable(RequestDetailDto request, Long currentUserId) {
+        if (!request.getRequesterId().equals(currentUserId)) {
+            throw new AccessDeniedException("작성자 본인만 문의를 수정할 수 있습니다.");
+        }
+        if (request.getStatus() != RequestStatus.WAITING) {
+            throw new IllegalStateException("처리가 시작된 문의는 수정할 수 없습니다.");
+        }
+    }
 }
