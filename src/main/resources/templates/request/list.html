@@ -35,6 +35,15 @@
             <option value="IN_PROGRESS" th:selected="${status?.name() == 'IN_PROGRESS'}">처리중</option>
             <option value="DONE" th:selected="${status?.name() == 'DONE'}">완료</option>
         </select>
+        <select name="priority" class="filter-select" onchange="this.form.submit()">
+            <option value="" th:selected="${priority == null}">전체 우선순위</option>
+            <option value="URGENT" th:selected="${priority?.name() == 'URGENT'}">긴급</option>
+            <option value="NORMAL" th:selected="${priority?.name() == 'NORMAL'}">보통</option>
+            <option value="LOW" th:selected="${priority?.name() == 'LOW'}">낮음</option>
+        </select>
+        <input type="text" name="keyword" class="search-input" th:value="${keyword}" placeholder="제목, 내용, 요청자, 담당자로 검색">
+        <button type="submit" class="btn-outline">검색</button>
+        <a th:if="${keyword != null and keyword != ''}" class="btn-outline" th:href="@{/requests(status=${status}, priority=${priority})}">검색 초기화</a>
     </form>
 
     <table class="request-table">
@@ -79,7 +88,7 @@
         <a th:each="p : ${#numbers.sequence(1, totalPages)}"
            class="page-link"
            th:classappend="${p == page} ? 'active' : ''"
-           th:href="@{/requests(page=${p}, status=${status})}"
+           th:href="@{/requests(page=${p}, status=${status}, priority=${priority}, keyword=${keyword})}"
            th:text="${p}">
         </a>
     </div>
