@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>마이페이지 - HelpDesk</title>
+    <link rel="stylesheet" th:href="@{/css/layout.css}">
+</head>
+<body>
+
+<nav class="navbar">
+    <a class="navbar-brand" th:href="@{/}">HelpDesk</a>
+    <div class="navbar-right">
+        <a class="nav-link" th:href="@{/requests}">문의함</a>
+        <a class="nav-link" th:href="@{/mypage}">마이페이지</a>
+        <span class="navbar-user" sec:authorize="isAuthenticated()">
+            <span sec:authentication="name"></span>님
+        </span>
+        <form th:action="@{/user/logout}" method="post" style="margin: 0;">
+            <button type="submit" class="btn-outline">로그아웃</button>
+        </form>
+    </div>
+</nav>
+
+<div class="page-container">
+
+    <div class="page-header">
+        <h2 class="page-title">마이페이지</h2>
+    </div>
+
+    <div class="profile-card">
+        <div class="profile-avatar" th:text="${#strings.substring(user.name, 0, 1)}"></div>
+        <div class="profile-info">
+            <p class="profile-name">
+                <span th:text="${user.name}"></span>
+                <span class="badge-role" th:if="${user.role.name() != 'USER'}"
+                    th:text="${user.role.name() == 'AGENT'} ? '담당자' : '관리자'"></span>
+            </p>
+            <p class="profile-meta">
+                <span th:text="${user.username}"></span> · <span th:text="${user.email}"></span>
+            </p>
+        </div>
+    </div>
+
+    <div class="mypage-section">
+        <p class="section-title">내가 등록한 문의 <span class="comment-count" th:text="${#lists.size(myRequests)}"></span></p>
+
+        <table class="request-table" th:if="${not #lists.isEmpty(myRequests)}">
+            <thead>
+            <tr>
+                <th style="width: 60px;">번호</th>
+                <th>제목</th>
+                <th style="width: 90px;">상태</th>
+                <th style="width: 80px;">우선순위</th>
+                <th style="width: 110px;">담당자</th>
+                <th style="width: 140px;">등록일</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="req : ${myRequests}">
+                <td th:text="${req.requestId}"></td>
+                <td><a th:href="@{/requests/{id}(id=${req.requestId})}" th:text="${req.title}" style="color:#2b2f33; text-decoration:none; font-weight:500;"></a></td>
+                <td>
+                    <span class="badge"
+                          th:classappend="'badge-' + ${#strings.toLowerCase(req.status.name())}"
+                          th:text="${req.status.name() == 'WAITING'} ? '대기' : (${req.status.name() == 'IN_PROGRESS'} ? '처리중' : '완료')">
+                    </span>
+                </td>
+                <td>
+                    <span class="badge"
+                          th:classappend="'badge-' + ${#strings.toLowerCase(req.priority.name())}"
+                          th:text="${req.priority.name() == 'URGENT'} ? '긴급' : (${req.priority.name() == 'NORMAL'} ? '보통' : '낮음')">
+                    </span>
+                </td>
+                <td th:text="${req.assigneeName} ?: '미배정'"></td>
+                <td th:text="${#temporals.format(req.createdAt, 'yyyy-MM-dd HH:mm')}"></td>
+            </tr>
+            </tbody>
+        </table>
+
+        <p class="mypage-empty" th:if="${#lists.isEmpty(myRequests)}">등록한 문의가 없습니다.</p>
+    </div>
+
+    <div class="mypage-section" th:if="${isAgentOrAdmin}">
+        <p class="section-title">내가 담당하는 문의 <span class="comment-count" th:text="${#lists.size(assignedRequests)}"></span></p>
+
+        <table class="request-table" th:if="${not #lists.isEmpty(assignedRequests)}">
+            <thead>
+            <tr>
+                <th style="width: 60px;">번호</th>
+                <th>제목</th>
+                <th style="width: 90px;">상태</th>
+                <th style="width: 80px;">우선순위</th>
+                <th style="width: 110px;">요청자</th>
+                <th style="width: 140px;">등록일</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="req : ${assignedRequests}">
+                <td th:text="${req.requestId}"></td>
+                <td><a th:href="@{/requests/{id}(id=${req.requestId})}" th:text="${req.title}" style="color:#2b2f33; text-decoration:none; font-weight:500;"></a></td>
+                <td>
+                    <span class="badge"
+                          th:classappend="'badge-' + ${#strings.toLowerCase(req.status.name())}"
+                          th:text="${req.status.name() == 'WAITING'} ? '대기' : (${req.status.name() == 'IN_PROGRESS'} ? '처리중' : '완료')">
+                    </span>
+                </td>
+                <td>
+                    <span class="badge"
+                          th:classappend="'badge-' + ${#strings.toLowerCase(req.priority.name())}"
+                          th:text="${req.priority.name() == 'URGENT'} ? '긴급' : (${req.priority.name() == 'NORMAL'} ? '보통' : '낮음')">
+                    </span>
+                </td>
+                <td th:text="${req.requesterName}"></td>
+                <td th:text="${#temporals.format(req.createdAt, 'yyyy-MM-dd HH:mm')}"></td>
+            </tr>
+            </tbody>
+        </table>
+
+        <p class="mypage-empty" th:if="${#lists.isEmpty(assignedRequests)}">담당 중인 문의가 없습니다.</p>
+    </div>
+
+</div>
+
+</body>
+</html>
