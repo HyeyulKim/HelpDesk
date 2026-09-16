@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.helpdesk.comment.mapper.CommentMapper">
+
+    <insert id="insertComment" useGeneratedKeys="true" keyProperty="commentId"
+            parameterType="com.helpdesk.comment.domain.Comment">
+        INSERT INTO comments (request_id, author_id, content)
+        VALUES (#{requestId}, #{authorId}, #{content})
+    </insert>
+
+    <select id="findByRequestId" resultType="com.helpdesk.comment.dto.CommentDto">
+        SELECT
+            c.comment_id AS commentId,
+            c.author_id  AS authorId,
+            author.name  AS authorName,
+            c.content    AS content,
+            c.created_at AS createdAt
+        FROM comments c
+        JOIN users author ON c.author_id = author.user_id
+        WHERE c.request_id = #{requestId}
+        ORDER BY c.created_at ASC
+    </select>
+
+    <select id="findById" resultType="com.helpdesk.comment.dto.CommentDto">
+        SELECT
+            c.comment_id AS commentId,
+            c.author_id  AS authorId,
+            author.name  AS authorName,
+            c.content    AS content,
+            c.created_at AS createdAt
+        FROM comments c
+        JOIN users author ON c.author_id = author.user_id
+        WHERE c.comment_id = #{commentId}
+    </select>
+
+    <update id="updateContent">
+        UPDATE comments
+        SET content = #{content}
+        WHERE comment_id = #{commentId}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM comments WHERE comment_id = #{commentId}
+    </delete>
+
+</mapper>

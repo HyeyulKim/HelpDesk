@@ -1,5 +1,7 @@
 package com.helpdesk.request.controller;
 
+import com.helpdesk.comment.dto.CommentCreateDto;
+import com.helpdesk.comment.service.CommentService;
 import com.helpdesk.request.domain.RequestStatus;
 import com.helpdesk.request.dto.RequestCreateDto;
 import com.helpdesk.request.dto.RequestDetailDto;
@@ -22,6 +24,7 @@ import java.util.List;
 public class RequestController {
 
     private final RequestService requestService;
+    private final CommentService commentService;
 
     @GetMapping
     public String list(
@@ -71,6 +74,8 @@ public class RequestController {
         model.addAttribute("request", request);
         model.addAttribute("currentUserId", userDetails.getUser().getUserId());
         model.addAttribute("currentUserRole", userDetails.getUser().getRole());
+        model.addAttribute("comments", commentService.getComments(requestId));
+        model.addAttribute("commentCreateDto", new CommentCreateDto());
         return "request/detail";
     }
 

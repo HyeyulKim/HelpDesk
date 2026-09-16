@@ -48,6 +48,7 @@
             r.priority       AS priority,
             r.requester_id   AS requesterId,
             requester.name   AS requesterName,
+            r.assignee_id    AS assigneeId,
             assignee.name    AS assigneeName,
             r.created_at     AS createdAt,
             r.updated_at     AS updatedAt
