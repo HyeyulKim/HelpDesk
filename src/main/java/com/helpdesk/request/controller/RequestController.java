@@ -93,6 +93,41 @@ public class RequestController {
         return "redirect:/requests/" + requestId;
     }
 
+    @GetMapping("/{requestId}/edit")
+    public String editForm(
+            @PathVariable Long requestId,
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            Model model
+    ) {
+        RequestDetailDto request = requestService.getRequestForEdit(requestId, userDetails.getUser().getUserId());
+
+        RequestCreateDto dto = new RequestCreateDto();
+        dto.setTitle(request.getTitle());
+        dto.setContent(request.getContent());
+        dto.setPriority(request.getPriority());
+
+        model.addAttribute("requestCreateDto", dto);
+        model.addAttribute("requestId", requestId);
+        return "request/edit";
+    }
+
+    @PostMapping("/{requestId}/edit")
+    public String edit(
+            @PathVariable Long requestId,
+            @Valid @ModelAttribute RequestCreateDto dto,
+            BindingResult bindingResult,
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            Model model
+    ) {
+        if (bindingResult.hasErrors()) {
+            model.addAttribute("requestId", requestId);
+            return "request/edit";
+        }
+
+        requestService.updateRequest(requestId, userDetails.getUser().getUserId(), dto);
+        return "redirect:/requests/" + requestId;
+    }
+
     @PostMapping("/{requestId}/delete")
     public String delete(
             @PathVariable Long requestId,

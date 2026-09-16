@@ -70,6 +70,15 @@
         DELETE FROM requests WHERE request_id = #{requestId}
     </delete>
 
+    <update id="updateContent">
+        UPDATE requests
+        SET title = #{title},
+            content = #{content},
+            priority = #{priority},
+            updated_at = CURRENT_TIMESTAMP
+        WHERE request_id = #{requestId}
+    </update>
+
     <select id="findByRequesterId" resultType="com.helpdesk.request.dto.RequestListItemDto">
         SELECT
             r.request_id     AS requestId,

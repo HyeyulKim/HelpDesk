@@ -1,6 +1,7 @@
 package com.helpdesk.request.mapper;
 
 import com.helpdesk.request.domain.Request;
+import com.helpdesk.request.domain.RequestPriority;
 import com.helpdesk.request.domain.RequestStatus;
 import com.helpdesk.request.dto.RequestDetailDto;
 import com.helpdesk.request.dto.RequestListItemDto;
@@ -32,6 +33,13 @@ public interface RequestMapper {
     );
 
     void deleteById(@Param("requestId") Long requestId);
+
+    void updateContent(
+            @Param("requestId") Long requestId,
+            @Param("title") String title,
+            @Param("content") String content,
+            @Param("priority") RequestPriority priority
+    );
 
     List<RequestListItemDto> findByRequesterId(
             @Param("requesterId") Long requesterId,
