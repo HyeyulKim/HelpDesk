@@ -24,6 +24,15 @@
             <if test="status != null">
                 AND r.status = #{status}
             </if>
+            <if test="priority != null">
+                AND r.priority = #{priority}
+            </if>
+            <if test="keyword != null and keyword != ''">
+                AND (r.title LIKE CONCAT('%', #{keyword}, '%')
+                     OR r.content LIKE CONCAT('%', #{keyword}, '%')
+                     OR requester.name LIKE CONCAT('%', #{keyword}, '%')
+                     OR assignee.name LIKE CONCAT('%', #{keyword}, '%'))
+            </if>
         </where>
         ORDER BY r.created_at DESC
         LIMIT #{size} OFFSET #{offset}
@@ -32,9 +41,20 @@
     <select id="countRequests" resultType="int">
         SELECT COUNT(*)
         FROM requests r
+        JOIN users requester ON r.requester_id = requester.user_id
+        LEFT JOIN users assignee ON r.assignee_id = assignee.user_id
         <where>
             <if test="status != null">
                 AND r.status = #{status}
+            </if>
+            <if test="priority != null">
+                AND r.priority = #{priority}
+            </if>
+            <if test="keyword != null and keyword != ''">
+                AND (r.title LIKE CONCAT('%', #{keyword}, '%')
+                     OR r.content LIKE CONCAT('%', #{keyword}, '%')
+                     OR requester.name LIKE CONCAT('%', #{keyword}, '%')
+                     OR assignee.name LIKE CONCAT('%', #{keyword}, '%'))
             </if>
         </where>
     </select>

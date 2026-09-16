@@ -153,6 +153,21 @@ body {
     color: #4a4f57;
 }
 
+.search-input {
+    height: 36px;
+    padding: 0 12px;
+    border: 1px solid #dfe2e6;
+    border-radius: 8px;
+    font-size: 13px;
+    color: #2b2f33;
+    width: 260px;
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: #3b82f6;
+}
+
 .btn-link {
     height: 36px;
     padding: 0 16px;

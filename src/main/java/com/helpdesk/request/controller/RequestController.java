@@ -2,6 +2,7 @@ package com.helpdesk.request.controller;
 
 import com.helpdesk.comment.dto.CommentCreateDto;
 import com.helpdesk.comment.service.CommentService;
+import com.helpdesk.request.domain.RequestPriority;
 import com.helpdesk.request.domain.RequestStatus;
 import com.helpdesk.request.dto.RequestCreateDto;
 import com.helpdesk.request.dto.RequestDetailDto;
@@ -29,14 +30,18 @@ public class RequestController {
     @GetMapping
     public String list(
             @RequestParam(required = false) RequestStatus status,
+            @RequestParam(required = false) RequestPriority priority,
+            @RequestParam(required = false) String keyword,
             @RequestParam(defaultValue = "1") int page,
             Model model
     ) {
-        List<RequestListItemDto> requests = requestService.getRequests(status, page);
-        int totalPages = Math.max(requestService.getTotalPages(status), 1);
+        List<RequestListItemDto> requests = requestService.getRequests(status, priority, keyword, page);
+        int totalPages = Math.max(requestService.getTotalPages(status, priority, keyword), 1);
 
         model.addAttribute("requests", requests);
         model.addAttribute("status", status);
+        model.addAttribute("priority", priority);
+        model.addAttribute("keyword", keyword);
         model.addAttribute("page", page);
         model.addAttribute("totalPages", totalPages);
         return "request/list";

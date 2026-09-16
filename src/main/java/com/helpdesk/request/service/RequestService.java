@@ -40,13 +40,13 @@ public class RequestService {
         requestMapper.insertRequest(request);
     }
 
-    public List<RequestListItemDto> getRequests(RequestStatus status, int page) {
+    public List<RequestListItemDto> getRequests(RequestStatus status, RequestPriority priority, String keyword, int page) {
         int offset = (page - 1) * PAGE_SIZE;
-        return requestMapper.findRequests(status, offset, PAGE_SIZE);
+        return requestMapper.findRequests(status, priority, keyword, offset, PAGE_SIZE);
     }
 
-    public int getTotalPages(RequestStatus status) {
-        int totalCount = requestMapper.countRequests(status);
+    public int getTotalPages(RequestStatus status, RequestPriority priority, String keyword) {
+        int totalCount = requestMapper.countRequests(status, priority, keyword);
         return (int) Math.ceil((double) totalCount / PAGE_SIZE);
     }
 

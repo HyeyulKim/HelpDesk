@@ -18,11 +18,17 @@ public interface RequestMapper {
 
     List<RequestListItemDto> findRequests(
             @Param("status") RequestStatus status,
+            @Param("priority") RequestPriority priority,
+            @Param("keyword") String keyword,
             @Param("offset") int offset,
             @Param("size") int size
     );
 
-    int countRequests(@Param("status") RequestStatus status);
+    int countRequests(
+            @Param("status") RequestStatus status,
+            @Param("priority") RequestPriority priority,
+            @Param("keyword") String keyword
+    );
 
     Optional<RequestDetailDto> findById(@Param("requestId") Long requestId);
 
