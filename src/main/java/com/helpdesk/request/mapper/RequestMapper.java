@@ -31,4 +31,8 @@ public interface RequestMapper {
             @Param("assigneeId") Long assigneeId
     );
     void deleteById(@Param("requestId") Long requestId);
+
+    List<RequestListItemDto> findByRequesterId(@Param("requesterId") Long requesterId);
+    
+    List<RequestListItemDto> findByAssigneeId(@Param("assigneeId") Long assigneeId);
 }

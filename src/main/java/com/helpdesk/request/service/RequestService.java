@@ -90,4 +90,12 @@ public class RequestService {
 
         requestMapper.deleteById(requestId);
     }
+
+    public List<RequestListItemDto> getMyRequests(Long requesterId) {
+        return requestMapper.findByRequesterId(requesterId);
+    }
+
+    public List<RequestListItemDto> getAssignedRequests(Long assigneeId) {
+        return requestMapper.findByAssigneeId(assigneeId);
+    }
 }

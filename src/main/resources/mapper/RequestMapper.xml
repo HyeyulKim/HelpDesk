@@ -70,4 +70,38 @@
         DELETE FROM requests WHERE request_id = #{requestId}
     </delete>
 
+    <select id="findByRequesterId" resultType="com.helpdesk.request.dto.RequestListItemDto">
+        SELECT
+            r.request_id     AS requestId,
+            r.title          AS title,
+            r.status         AS status,
+            r.priority       AS priority,
+            requester.name   AS requesterName,
+            assignee.name    AS assigneeName,
+            r.created_at     AS createdAt
+        FROM requests r
+        JOIN users requester ON r.requester_id = requester.user_id
+        LEFT JOIN users assignee ON r.assignee_id = assignee.user_id
+        WHERE r.requester_id = #{requesterId}
+        ORDER BY r.created_at DESC
+        LIMIT 20
+    </select>
+
+    <select id="findByAssigneeId" resultType="com.helpdesk.request.dto.RequestListItemDto">
+        SELECT
+            r.request_id     AS requestId,
+            r.title          AS title,
+            r.status         AS status,
+            r.priority       AS priority,
+            requester.name   AS requesterName,
+            assignee.name    AS assigneeName,
+            r.created_at     AS createdAt
+        FROM requests r
+        JOIN users requester ON r.requester_id = requester.user_id
+        LEFT JOIN users assignee ON r.assignee_id = assignee.user_id
+        WHERE r.assignee_id = #{assigneeId}
+        ORDER BY r.created_at DESC
+        LIMIT 20
+    </select>
+
 </mapper>
