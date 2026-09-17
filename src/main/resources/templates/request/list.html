@@ -49,13 +49,13 @@
     <table class="request-table">
         <thead>
         <tr>
-            <th style="width: 60px;">번호</th>
-            <th>제목</th>
-            <th style="width: 90px;">상태</th>
-            <th style="width: 80px;">우선순위</th>
-            <th style="width: 110px;">요청자</th>
-            <th style="width: 110px;">담당자</th>
-            <th style="width: 140px;">등록일</th>
+            <th style="width: 60px; text-align: center;">번호</th>
+            <th style="text-align: center;">제목</th>
+            <th style="width: 90px; text-align: center;">상태</th>
+            <th style="width: 80px; text-align: center;">우선순위</th>
+            <th style="width: 110px; text-align: center;">요청자</th>
+            <th style="width: 110px; text-align: center;">담당자</th>
+            <th style="width: 160px; white-space: nowrap; text-align: center;">등록일</th>
         </tr>
         </thead>
         <tbody>
@@ -63,23 +63,23 @@
             <td colspan="7">등록된 문의가 없습니다.</td>
         </tr>
         <tr th:each="req : ${requests}">
-            <td th:text="${req.requestId}"></td>
-            <td><a th:href="@{/requests/{id}(id=${req.requestId})}" th:text="${req.title}" style="color:#2b2f33; text-decoration:none; font-weight:500;"></a></td>
-            <td>
+            <td style="text-align: center;" th:text="${req.requestId}"></td>
+            <td style="text-align: left;"><a th:href="@{/requests/{id}(id=${req.requestId})}" th:text="${req.title}" style="color:#2b2f33; text-decoration:none; font-weight:500;"></a></td>
+            <td style="text-align: center;">
                 <span class="badge"
                       th:classappend="'badge-' + ${#strings.toLowerCase(req.status.name())}"
                       th:text="${req.status.name() == 'WAITING'} ? '대기' : (${req.status.name() == 'IN_PROGRESS'} ? '처리중' : '완료')">
                 </span>
             </td>
-            <td>
+            <td style="text-align: center;">
                 <span class="badge"
                       th:classappend="'badge-' + ${#strings.toLowerCase(req.priority.name())}"
                       th:text="${req.priority.name() == 'URGENT'} ? '긴급' : (${req.priority.name() == 'NORMAL'} ? '보통' : '낮음')">
                 </span>
             </td>
-            <td th:text="${req.requesterName}"></td>
-            <td th:text="${req.assigneeName} ?: '미배정'"></td>
-            <td th:text="${#temporals.format(req.createdAt, 'yyyy-MM-dd HH:mm')}"></td>
+            <td style="text-align: center;" th:text="${req.requesterName}"></td>
+            <td style="text-align: center;" th:text="${req.assigneeName} ?: '미배정'"></td>
+            <td style="white-space: nowrap; text-align: center;" th:text="${#temporals.format(req.createdAt, 'yyyy-MM-dd HH:mm')}"></td>
         </tr>
         </tbody>
     </table>
