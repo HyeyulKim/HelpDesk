@@ -30,7 +30,7 @@ public class RequestController {
     private final AttachmentService attachmentService;
 
     @GetMapping
-    public String list(
+    public String list( //문의 목록
             @RequestParam(required = false) RequestStatus status,
             @RequestParam(required = false) RequestPriority priority,
             @RequestParam(required = false) String keyword,
@@ -40,6 +40,8 @@ public class RequestController {
         List<RequestListItemDto> requests = requestService.getRequests(status, priority, keyword, page);
         int totalPages = Math.max(requestService.getTotalPages(status, priority, keyword), 1);
 
+        //Model은 Controller가 View(Thymeleaf)에게 데이터를 전달하는 상자
+        //여기 담긴 키("requests", "status" 등)가 그대로 list.html에서 ${requests}, ${status}로 꺼내짐
         model.addAttribute("requests", requests);
         model.addAttribute("status", status);
         model.addAttribute("priority", priority);
@@ -50,13 +52,13 @@ public class RequestController {
     }
 
     @GetMapping("/new")
-    public String createForm(Model model) {
+    public String createForm(Model model) { //등록 폼 화면
         model.addAttribute("requestCreateDto", new RequestCreateDto());
         return "request/form";
     }
 
     @PostMapping
-    public String create(
+    public String create( //등록 처리
             @Valid @ModelAttribute RequestCreateDto dto,
             BindingResult bindingResult,
             @AuthenticationPrincipal CustomUserDetails userDetails,
@@ -68,11 +70,12 @@ public class RequestController {
 
         Long requesterId = userDetails.getUser().getUserId();
         requestService.createRequest(requesterId, dto);
-        return "redirect:/requests";
+        return "redirect:/requests";//문자열 앞에 redirect:가 붙으면 뷰 렌더링이 아니라 새 요청을 보내라는 뜻
+        // 등록 후 새로고침해도 중복 제출 안 되게 하는 관례(POST-Redirect-GET 패턴)
     }
 
     @GetMapping("/{requestId}")
-    public String detail(
+    public String detail( //상세 조회
             @PathVariable Long requestId,
             @AuthenticationPrincipal CustomUserDetails userDetails,
             Model model
@@ -89,7 +92,7 @@ public class RequestController {
     }
 
     @PostMapping("/{requestId}/status")
-    public String advanceStatus(
+    public String advanceStatus(//상태 변경
             @PathVariable Long requestId,
             @AuthenticationPrincipal CustomUserDetails userDetails,
             Model model
@@ -103,7 +106,7 @@ public class RequestController {
     }
 
     @GetMapping("/{requestId}/edit")
-    public String editForm(
+    public String editForm( //수정 폼 화면
             @PathVariable Long requestId,
             @AuthenticationPrincipal CustomUserDetails userDetails,
             Model model
@@ -121,7 +124,7 @@ public class RequestController {
     }
 
     @PostMapping("/{requestId}/edit")
-    public String edit(
+    public String edit( //수정 처리
             @PathVariable Long requestId,
             @Valid @ModelAttribute RequestCreateDto dto,
             BindingResult bindingResult,
@@ -138,7 +141,7 @@ public class RequestController {
     }
 
     @PostMapping("/{requestId}/delete")
-    public String delete(
+    public String delete( // 삭제
             @PathVariable Long requestId,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
