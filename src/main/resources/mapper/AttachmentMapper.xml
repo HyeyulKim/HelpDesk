@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.helpdesk.attachment.mapper.AttachmentMapper">
+
+    <insert id="insertAttachment" useGeneratedKeys="true" keyProperty="attachmentId"
+            parameterType="com.helpdesk.attachment.domain.Attachment">
+        INSERT INTO attachments (request_id, original_filename, stored_filename, file_path, file_size)
+        VALUES (#{requestId}, #{originalFilename}, #{storedFilename}, #{filePath}, #{fileSize})
+    </insert>
+
+    <select id="findByRequestId" resultType="com.helpdesk.attachment.domain.Attachment">
+        SELECT
+            attachment_id, request_id, original_filename, stored_filename, file_path, file_size, uploaded_at
+        FROM attachments
+        WHERE request_id = #{requestId}
+        ORDER BY uploaded_at ASC
+    </select>
+
+    <select id="findById" resultType="com.helpdesk.attachment.domain.Attachment">
+        SELECT
+            attachment_id, request_id, original_filename, stored_filename, file_path, file_size, uploaded_at
+        FROM attachments
+        WHERE attachment_id = #{attachmentId}
+    </select>
+
+    <delete id="deleteById">
+        DELETE FROM attachments WHERE attachment_id = #{attachmentId}
+    </delete>
+
+</mapper>
