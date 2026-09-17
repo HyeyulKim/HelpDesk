@@ -53,6 +53,32 @@
 
     <div class="detail-content" th:text="${request.content}"></div>
 
+    <div class="attachment-section">
+        <p class="section-title">첨부파일 <span class="comment-count" th:text="${#lists.size(attachments)}"></span></p>
+
+        <ul class="attachment-list" th:if="${not #lists.isEmpty(attachments)}">
+            <li class="attachment-item" th:each="file : ${attachments}">
+                <a class="attachment-name"
+                   th:href="@{/requests/{rid}/attachments/{aid}/download(rid=${request.requestId},aid=${file.attachmentId})}"
+                   th:text="${file.originalFilename}"></a>
+                <span class="attachment-size" th:text="${#numbers.formatDecimal(file.fileSize / 1024.0, 1, 1)} + ' KB'"></span>
+                <form th:if="${currentUserId == request.requesterId or currentUserRole.name() == 'ADMIN'}"
+                      th:action="@{/requests/{rid}/attachments/{aid}/delete(rid=${request.requestId},aid=${file.attachmentId})}"
+                      method="post" onsubmit="return confirm('첨부파일을 삭제하시겠습니까?');">
+                    <button type="submit" class="comment-action-btn comment-action-danger">삭제</button>
+                </form>
+            </li>
+        </ul>
+        <p class="attachment-empty" th:if="${#lists.isEmpty(attachments)}">첨부된 파일이 없습니다.</p>
+
+        <form th:if="${currentUserId == request.requesterId or currentUserRole.name() == 'ADMIN'}"
+              th:action="@{/requests/{id}/attachments(id=${request.requestId})}"
+              method="post" enctype="multipart/form-data" class="attachment-upload-form">
+            <input type="file" name="files" multiple>
+            <button type="submit" class="btn-outline">업로드</button>
+        </form>
+    </div>
+
     <div class="detail-actions">
         <a th:if="${currentUserId == request.requesterId and request.status.name() == 'WAITING'}"
            class="btn-outline" th:href="@{/requests/{id}/edit(id=${request.requestId})}">수정</a>
@@ -121,12 +147,15 @@
             </div>
         </div>
 
-        <form class="comment-form"
+        <form class="comment-composer"
               th:if="${currentUserId == request.requesterId or currentUserId == request.assigneeId or currentUserRole.name() == 'ADMIN'}"
               th:action="@{/requests/{id}/comments(id=${request.requestId})}"
               th:object="${commentCreateDto}" method="post">
-            <textarea th:field="*{content}" placeholder="댓글을 입력하세요"></textarea>
-            <button type="submit" class="btn-primary" style="width: 90px;">등록</button>
+            <div class="comment-composer-name" th:text="${currentUserName}"></div>
+            <textarea th:field="*{content}" placeholder="댓글을 남겨보세요"></textarea>
+            <div class="comment-composer-actions">
+                <button type="submit" class="comment-composer-submit">등록</button>
+            </div>
         </form>
         <p class="comment-guard"
            th:unless="${currentUserId == request.requesterId or currentUserId == request.assigneeId or currentUserRole.name() == 'ADMIN'}">

@@ -17,11 +17,14 @@ out/
 !**/src/main/**/out/
 !**/src/test/**/out/
 
-### Mac OS ###
-.DS_Store
-
 ### Eclipse / STS ###
 bin/
 .settings/
 .classpath
 .project
+
+### 업로드된 첨부파일 (실제 파일은 저장소에 커밋하지 않음) ###
+uploads/
+
+### Mac OS ###
+.DS_Store

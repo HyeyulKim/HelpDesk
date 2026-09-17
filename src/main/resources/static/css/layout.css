@@ -145,12 +145,18 @@ body {
 
 .filter-select {
     height: 36px;
-    padding: 0 10px;
+    padding: 0 28px 0 10px;
     border: 1px solid #dfe2e6;
     border-radius: 8px;
     font-size: 13px;
-    background: #fff;
+    background-color: #fff;
     color: #4a4f57;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%236b7280' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
 }
 
 .search-input {
@@ -547,28 +553,63 @@ body {
     border-color: #2563eb;
 }
 
-.comment-form {
-    display: flex;
-    gap: 8px;
-    margin-left: 48px;
+.comment-composer {
+    background: #fff;
+    border: 1px solid #dfe2e6;
+    border-radius: 10px;
+    padding: 14px 16px;
 }
 
-.comment-form textarea {
-    flex: 1;
+.comment-composer:focus-within {
+    border-color: #3b82f6;
+}
+
+.comment-composer-name {
+    font-size: 13px;
+    font-weight: 700;
+    color: #2b2f33;
+    margin-bottom: 6px;
+}
+
+.comment-composer textarea {
+    width: 100%;
     min-height: 44px;
-    padding: 10px 14px;
-    border: 1px solid #dfe2e6;
-    border-radius: 8px;
+    padding: 0;
+    border: none;
+    outline: none;
+    background: transparent;
     font-size: 14px;
     font-family: inherit;
-    resize: vertical;
+    line-height: 1.6;
+    color: #2b2f33;
+    resize: none;
+    box-sizing: border-box;
+}
+
+.comment-composer-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 8px;
+}
+
+.comment-composer-submit {
+    border: none;
+    background: none;
+    padding: 0;
+    color: #3b82f6;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.comment-composer-submit:hover {
+    text-decoration: underline;
 }
 
 .comment-guard {
     font-size: 13px;
     color: #9aa0a8;
     padding: 12px 0 0;
-    margin-left: 48px;
 }
 
 /* ===== 마이페이지 ===== */
@@ -643,4 +684,100 @@ body {
     border: 1px dashed #dfe2e6;
     border-radius: 10px;
     margin: 0;
+}
+
+/* ===== 첨부파일 ===== */
+
+.attachment-section {
+    margin-bottom: 24px;
+}
+
+.attachment-list {
+    list-style: none;
+    margin: 0 0 12px;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.attachment-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: #fff;
+    border: 1px solid #eef0f2;
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 13px;
+}
+
+.attachment-empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #fff;
+    border: 1px solid #eef0f2;
+    border-radius: 8px;
+    padding: 10px 14px;
+    margin: 0 0 12px;
+    font-size: 13px;
+    color: #9aa0a8;
+}
+
+.attachment-name {
+    color: #2563eb;
+    text-decoration: none;
+    font-weight: 600;
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.attachment-name:hover {
+    text-decoration: underline;
+}
+
+.attachment-size {
+    color: #9aa0a8;
+    font-size: 12px;
+}
+
+.attachment-upload-form {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: #fff;
+    border: 1px solid #eef0f2;
+    border-radius: 10px;
+    padding: 10px 14px;
+}
+
+.attachment-upload-form input[type="file"] {
+    flex: 1;
+    font-size: 13px;
+    color: #6b7280;
+}
+
+.attachment-upload-form input[type="file"]::file-selector-button {
+    height: 34px;
+    padding: 0 14px;
+    margin-right: 12px;
+    border: 1px solid #dfe2e6;
+    border-radius: 8px;
+    background: #fff;
+    color: #4a4f57;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s ease;
+}
+
+.attachment-upload-form input[type="file"]::file-selector-button:hover {
+    background: #f4f6f8;
+}
+
+.attachment-upload-form button[type="submit"] {
+    flex-shrink: 0;
 }

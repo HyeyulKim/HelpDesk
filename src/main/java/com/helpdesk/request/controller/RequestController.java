@@ -1,5 +1,6 @@
 package com.helpdesk.request.controller;
 
+import com.helpdesk.attachment.service.AttachmentService;
 import com.helpdesk.comment.dto.CommentCreateDto;
 import com.helpdesk.comment.service.CommentService;
 import com.helpdesk.request.domain.RequestPriority;
@@ -26,6 +27,7 @@ public class RequestController {
 
     private final RequestService requestService;
     private final CommentService commentService;
+    private final AttachmentService attachmentService;
 
     @GetMapping
     public String list(
@@ -79,8 +81,10 @@ public class RequestController {
         model.addAttribute("request", request);
         model.addAttribute("currentUserId", userDetails.getUser().getUserId());
         model.addAttribute("currentUserRole", userDetails.getUser().getRole());
+        model.addAttribute("currentUserName", userDetails.getUser().getName());
         model.addAttribute("comments", commentService.getComments(requestId));
         model.addAttribute("commentCreateDto", new CommentCreateDto());
+        model.addAttribute("attachments", attachmentService.getAttachments(requestId));
         return "request/detail";
     }
 
