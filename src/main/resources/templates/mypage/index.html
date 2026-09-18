@@ -32,8 +32,7 @@
         <div class="profile-info">
             <p class="profile-name">
                 <span th:text="${user.name}"></span>
-                <span class="badge-role" th:if="${user.role.name() != 'USER'}"
-                      th:text="${user.role.name() == 'AGENT'} ? '담당자' : '관리자'"></span>
+                <span class="badge-role" th:if="${user.role.name() != 'USER'}" th:text="담당자"></span>
             </p>
             <p class="profile-meta">
                 <span th:text="${user.username}"></span> · <span th:text="${user.email}"></span>

@@ -17,7 +17,10 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
 
     @Transactional
-    public void signup(SignupRequestDto dto) {
+    public void signup(SignupRequestDto dto, boolean emailVerified) {
+        if (!emailVerified) {
+            throw new IllegalStateException("이메일 인증을 완료해주세요.");
+        }
         if (userMapper.countByUsername(dto.getUsername()) > 0) {
             throw new IllegalStateException("이미 존재하는 아이디입니다.");
         }
@@ -25,7 +28,7 @@ public class UserService {
             throw new IllegalStateException("이미 사용중인 이메일입니다.");
         }
 
-        // ADMIN은 회원가입 화면에서 선택 불가 (서버단 방어)
+        // 회원가입 화면에서는 USER/AGENT 중 선택
         Role role = (dto.getRole() == Role.AGENT) ? Role.AGENT : Role.USER;
 
         User user = User.builder()
@@ -37,5 +40,9 @@ public class UserService {
                 .build();
 
         userMapper.insertUser(user);
+    }
+
+    public boolean isEmailAvailable(String email) {
+        return userMapper.countByEmail(email) == 0;
     }
 }

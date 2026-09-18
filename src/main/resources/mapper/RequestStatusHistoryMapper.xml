@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.helpdesk.statushistory.mapper.RequestStatusHistoryMapper">
+
+    <insert id="insertHistory" parameterType="com.helpdesk.statushistory.domain.RequestStatusHistory">
+        INSERT INTO request_status_histories (request_id, from_status, to_status, changed_by)
+        VALUES (#{requestId}, #{fromStatus}, #{toStatus}, #{changedById})
+    </insert>
+
+    <select id="findByRequestId" resultType="com.helpdesk.statushistory.domain.RequestStatusHistory">
+        SELECT history_id, request_id, from_status, to_status, changed_by, changed_at
+        FROM request_status_histories
+        WHERE request_id = #{requestId}
+        ORDER BY changed_at ASC
+    </select>
+
+</mapper>

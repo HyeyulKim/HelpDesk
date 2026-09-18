@@ -62,7 +62,7 @@
                    th:href="@{/requests/{rid}/attachments/{aid}/download(rid=${request.requestId},aid=${file.attachmentId})}"
                    th:text="${file.originalFilename}"></a>
                 <span class="attachment-size" th:text="${#numbers.formatDecimal(file.fileSize / 1024.0, 1, 1)} + ' KB'"></span>
-                <form th:if="${currentUserId == request.requesterId or currentUserRole.name() == 'ADMIN'}"
+                <form th:if="${currentUserId == request.requesterId}"
                       th:action="@{/requests/{rid}/attachments/{aid}/delete(rid=${request.requestId},aid=${file.attachmentId})}"
                       method="post" onsubmit="return confirm('첨부파일을 삭제하시겠습니까?');">
                     <button type="submit" class="comment-action-btn comment-action-danger">삭제</button>
@@ -71,7 +71,7 @@
         </ul>
         <p class="attachment-empty" th:if="${#lists.isEmpty(attachments)}">첨부된 파일이 없습니다.</p>
 
-        <form th:if="${currentUserId == request.requesterId or currentUserRole.name() == 'ADMIN'}"
+        <form th:if="${currentUserId == request.requesterId}"
               th:action="@{/requests/{id}/attachments(id=${request.requestId})}"
               method="post" enctype="multipart/form-data" class="attachment-upload-form">
             <input type="file" name="files" multiple>
@@ -83,7 +83,7 @@
         <a th:if="${currentUserId == request.requesterId and request.status.name() == 'WAITING'}"
            class="btn-outline" th:href="@{/requests/{id}/edit(id=${request.requestId})}">수정</a>
 
-        <form th:if="${(currentUserRole.name() == 'AGENT' or currentUserRole.name() == 'ADMIN') and request.status.name() != 'DONE'}"
+        <form th:if="${currentUserRole.name() == 'AGENT' and request.status.name() != 'DONE'}"
               th:action="@{/requests/{id}/status(id=${request.requestId})}" method="post">
             <button type="submit" class="btn-outline">
                 <span th:if="${request.status.name() == 'WAITING'}">처리 시작 (처리중으로 변경)</span>
@@ -91,7 +91,7 @@
             </button>
         </form>
 
-        <form th:if="${currentUserId == request.requesterId or currentUserRole.name() == 'ADMIN'}"
+        <form th:if="${currentUserId == request.requesterId}"
               th:action="@{/requests/{id}/delete(id=${request.requestId})}" method="post"
               onsubmit="return confirm('정말 삭제하시겠습니까?');">
             <button type="submit" class="btn-danger">삭제</button>
@@ -123,7 +123,7 @@
                                         th:onclick="'toggleCommentEdit(' + ${comment.commentId} + ', true)'">수정</button>
                             </span>
                             <form class="comment-actions"
-                                  th:if="${currentUserId == comment.authorId or currentUserRole.name() == 'ADMIN'}"
+                                  th:if="${currentUserId == comment.authorId}"
                                   th:action="@{/requests/{rid}/comments/{cid}/delete(rid=${request.requestId},cid=${comment.commentId})}"
                                   method="post" onsubmit="return confirm('댓글을 삭제하시겠습니까?');">
                                 <button type="submit" class="comment-action-btn comment-action-danger">삭제</button>
@@ -148,7 +148,7 @@
         </div>
 
         <form class="comment-composer"
-              th:if="${currentUserId == request.requesterId or currentUserId == request.assigneeId or currentUserRole.name() == 'ADMIN'}"
+              th:if="${currentUserId == request.requesterId or currentUserId == request.assigneeId}"
               th:action="@{/requests/{id}/comments(id=${request.requestId})}"
               th:object="${commentCreateDto}" method="post">
             <div class="comment-composer-name" th:text="${currentUserName}"></div>
@@ -158,7 +158,7 @@
             </div>
         </form>
         <p class="comment-guard"
-           th:unless="${currentUserId == request.requesterId or currentUserId == request.assigneeId or currentUserRole.name() == 'ADMIN'}">
+           th:unless="${currentUserId == request.requesterId or currentUserId == request.assigneeId}">
             이 문의의 요청자, 담당자만 댓글을 작성할 수 있습니다.
         </p>
     </div>

@@ -42,3 +42,14 @@ CREATE TABLE IF NOT EXISTS attachments (
     uploaded_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_attachments_request FOREIGN KEY (request_id) REFERENCES requests (request_id)
 );
+
+CREATE TABLE IF NOT EXISTS request_status_histories (
+    history_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    request_id BIGINT NOT NULL,
+    from_status VARCHAR(20) NULL,
+    to_status VARCHAR(20) NOT NULL,
+    changed_by BIGINT NOT NULL,
+    changed_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_status_history_request FOREIGN KEY (request_id) REFERENCES requests (request_id) ON DELETE CASCADE,
+    CONSTRAINT fk_status_history_user FOREIGN KEY (changed_by) REFERENCES users (user_id)
+);

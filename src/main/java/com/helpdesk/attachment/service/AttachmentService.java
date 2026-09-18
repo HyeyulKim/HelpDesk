@@ -51,10 +51,9 @@ public class AttachmentService {
         RequestDetailDto request = requestService.getRequestDetail(requestId);
 
         boolean isRequester = Objects.equals(request.getRequesterId(), currentUserId);
-        boolean isAdmin = currentUserRole == Role.ADMIN;
 
-        if (!isRequester && !isAdmin) {
-            throw new AccessDeniedException("이 문의의 요청자 또는 관리자만 첨부파일을 업로드할 수 있습니다.");
+        if (!isRequester) {
+            throw new AccessDeniedException("이 문의의 요청자만 첨부파일을 업로드할 수 있습니다.");
         }
 
         for (MultipartFile file : files) {
@@ -102,10 +101,9 @@ public class AttachmentService {
         RequestDetailDto request = requestService.getRequestDetail(attachment.getRequestId());
 
         boolean isOwner = Objects.equals(request.getRequesterId(), currentUserId);
-        boolean isAdmin = currentUserRole == Role.ADMIN;
 
-        if (!isOwner && !isAdmin) {
-            throw new AccessDeniedException("작성자 본인 또는 관리자만 첨부파일을 삭제할 수 있습니다.");
+        if (!isOwner) {
+            throw new AccessDeniedException("작성자 본인만 첨부파일을 삭제할 수 있습니다.");
         }
 
         try {

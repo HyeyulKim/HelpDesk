@@ -27,6 +27,6 @@ public class SignupRequestDto {
     @Email(message = "이메일 형식이 올바르지 않습니다.")
     private String email;
 
-    // 회원가입 화면에서는 USER/AGENT만 선택 가능 (ADMIN은 서비스단에서 방어)
+    // 요청자(USER) 또는 담당자(AGENT) 중 선택
     private Role role;
 }
