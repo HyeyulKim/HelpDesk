@@ -13,6 +13,7 @@
     <div class="navbar-right">
         <a class="nav-link" th:href="@{/requests}">문의함</a>
         <a class="nav-link" th:href="@{/mypage}">마이페이지</a>
+        <a class="nav-link" th:href="@{/statistics}" sec:authorize="hasRole('AGENT')">통계</a>
         <span class="navbar-user" sec:authorize="isAuthenticated()">
             <span sec:authentication="name"></span>님
         </span>

@@ -26,6 +26,7 @@ public class SecurityConfig {
         http
             .authorizeRequests(auth -> auth
                 .antMatchers("/", "/user/signup", "/user/login", "/css/**", "/js/**").permitAll()//로그인 안 해도 접근 가능
+                .antMatchers("/statistics/**").hasRole("AGENT")//담당자만 통계 대시보드 열람 가능
                 .anyRequest().authenticated()//위에 나열되지 않은 나머지 모든 요청은 로그인 필수
             )
             .formLogin(form -> form

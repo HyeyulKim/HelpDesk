@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>통계 대시보드 - HelpDesk</title>
+    <link rel="stylesheet" th:href="@{/css/layout.css}">
+    <link rel="stylesheet" th:href="@{/css/statistics.css}">
+    <script src="https://code.highcharts.com/highcharts.js"></script>
+</head>
+<body>
+
+<nav class="navbar">
+    <a class="navbar-brand" th:href="@{/}">HelpDesk</a>
+    <div class="navbar-right">
+        <a class="nav-link" th:href="@{/requests}">문의함</a>
+        <a class="nav-link" th:href="@{/mypage}">마이페이지</a>
+        <a class="nav-link" th:href="@{/statistics}">통계</a>
+        <span class="navbar-user" sec:authorize="isAuthenticated()">
+            <span sec:authentication="name"></span>님
+        </span>
+        <form th:action="@{/user/logout}" method="post" style="margin: 0;">
+            <button type="submit" class="btn-outline">로그아웃</button>
+        </form>
+    </div>
+</nav>
+
+<div class="page-container">
+
+    <div class="page-header">
+        <h2 class="page-title">통계 대시보드</h2>
+    </div>
+
+    <!-- 요약 카드 -->
+    <div class="stat-cards">
+        <div class="stat-card">
+            <p class="stat-label">전체 문의</p>
+            <p class="stat-value" th:text="${dashboard.totalCount}"></p>
+        </div>
+        <div class="stat-card">
+            <p class="stat-label">대기</p>
+            <p class="stat-value" th:text="${dashboard.waitingCount}"></p>
+        </div>
+        <div class="stat-card">
+            <p class="stat-label">처리중</p>
+            <p class="stat-value" th:text="${dashboard.inProgressCount}"></p>
+        </div>
+        <div class="stat-card">
+            <p class="stat-label">완료</p>
+            <p class="stat-value" th:text="${dashboard.doneCount}"></p>
+        </div>
+        <div class="stat-card">
+            <p class="stat-label">미배정</p>
+            <p class="stat-value" th:text="${dashboard.unassignedCount}"></p>
+        </div>
+    </div>
+
+    <!-- 처리 시간 요약 -->
+    <div class="stat-cards">
+        <div class="stat-card">
+            <p class="stat-label">평균 대응 시간 (등록 → 처리시작)</p>
+            <p class="stat-value stat-value-sm"
+               th:text="${dashboard.avgResponseMinutes != null} ? ${#numbers.formatDecimal(dashboard.avgResponseMinutes / 60.0, 1, 1)} + '시간' : '데이터 없음'"></p>
+        </div>
+        <div class="stat-card">
+            <p class="stat-label">평균 처리 시간 (처리시작 → 완료)</p>
+            <p class="stat-value stat-value-sm"
+               th:text="${dashboard.avgResolutionMinutes != null} ? ${#numbers.formatDecimal(dashboard.avgResolutionMinutes / 60.0, 1, 1)} + '시간' : '데이터 없음'"></p>
+        </div>
+    </div>
+
+    <!-- 차트 그리드 -->
+    <div class="chart-grid">
+        <div class="chart-card">
+            <p class="chart-title">상태별 분포</p>
+            <div id="statusChart" class="chart-box"></div>
+        </div>
+        <div class="chart-card">
+            <p class="chart-title">우선순위별 분포</p>
+            <div id="priorityChart" class="chart-box"></div>
+        </div>
+        <div class="chart-card chart-card-wide">
+            <p class="chart-title">담당자별 처리 건수</p>
+            <div id="assigneeChart" class="chart-box"></div>
+        </div>
+        <div class="chart-card chart-card-wide">
+            <p class="chart-title">최근 14일 등록/완료 추이</p>
+            <div id="trendChart" class="chart-box"></div>
+        </div>
+    </div>
+
+</div>
+
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    var statusData = /*[[${dashboard.statusCounts}]]*/ [];
+    var priorityData = /*[[${dashboard.priorityCounts}]]*/ [];
+    var assigneeData = /*[[${dashboard.assigneeWorkloads}]]*/ [];
+    var trendLabels = /*[[${dashboard.trendLabels}]]*/ [];
+    var trendRegistered = /*[[${dashboard.trendRegisteredCounts}]]*/ [];
+    var trendCompleted = /*[[${dashboard.trendCompletedCounts}]]*/ [];
+    /*]]>*/
+
+    var STATUS_LABEL = { WAITING: '대기', IN_PROGRESS: '처리중', DONE: '완료' };
+    var PRIORITY_LABEL = { URGENT: '긴급', NORMAL: '보통', LOW: '낮음' };
+    var STATUS_COLOR = { WAITING: '#1d4ed8', IN_PROGRESS: '#6d28d9', DONE: '#475569' };
+    var PRIORITY_COLOR = { URGENT: '#b91c1c', NORMAL: '#854d0e', LOW: '#15803d' };
+
+    Highcharts.chart('statusChart', {
+        chart: { type: 'pie', height: 260 },
+        title: { text: null },
+        credits: { enabled: false },
+        series: [{
+            name: '건수',
+            data: statusData.map(function (d) {
+                return { name: STATUS_LABEL[d.status] || d.status, y: d.count, color: STATUS_COLOR[d.status] };
+            })
+        }]
+    });
+
+    Highcharts.chart('priorityChart', {
+        chart: { type: 'pie', height: 260 },
+        title: { text: null },
+        credits: { enabled: false },
+        series: [{
+            name: '건수',
+            data: priorityData.map(function (d) {
+                return { name: PRIORITY_LABEL[d.priority] || d.priority, y: d.count, color: PRIORITY_COLOR[d.priority] };
+            })
+        }]
+    });
+
+    Highcharts.chart('assigneeChart', {
+        chart: { type: 'column', height: 280 },
+        title: { text: null },
+        credits: { enabled: false },
+        xAxis: { categories: assigneeData.map(function (d) { return d.assigneeName; }) },
+        yAxis: { title: { text: '건수' }, allowDecimals: false },
+        legend: { enabled: false },
+        series: [{ name: '처리 건수', data: assigneeData.map(function (d) { return d.count; }), color: '#3b82f6' }]
+    });
+
+    Highcharts.chart('trendChart', {
+        chart: { type: 'line', height: 280 },
+        title: { text: null },
+        credits: { enabled: false },
+        xAxis: { categories: trendLabels },
+        yAxis: { title: { text: '건수' }, allowDecimals: false },
+        series: [
+            { name: '등록', data: trendRegistered, color: '#3b82f6' },
+            { name: '완료', data: trendCompleted, color: '#15803d' }
+        ]
+    });
+</script>
+
+</body>
+</html>
