@@ -65,3 +65,12 @@ CREATE TABLE IF NOT EXISTS notifications (
     CONSTRAINT fk_notifications_user FOREIGN KEY (user_id) REFERENCES users (user_id),
     CONSTRAINT fk_notifications_request FOREIGN KEY (request_id) REFERENCES requests (request_id) ON DELETE CASCADE
 );
+
+CREATE TABLE IF NOT EXISTS email_verifications (
+    verification_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    email VARCHAR(100) NOT NULL,
+    code VARCHAR(6) NOT NULL,
+    verified TINYINT(1) NOT NULL DEFAULT 0,
+    expires_at DATETIME NOT NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+);

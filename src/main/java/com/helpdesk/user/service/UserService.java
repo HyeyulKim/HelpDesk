@@ -17,7 +17,10 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
 
     @Transactional
-    public void signup(SignupRequestDto dto) {
+    public void signup(SignupRequestDto dto, boolean emailVerified) {
+        if (!emailVerified) {
+            throw new IllegalStateException("이메일 인증을 완료해주세요.");
+        }
         if (userMapper.countByUsername(dto.getUsername()) > 0) {
             throw new IllegalStateException("이미 존재하는 아이디입니다.");
         }
