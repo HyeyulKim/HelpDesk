@@ -1,27 +1,26 @@
 package com.helpdesk.config;
 
+import com.helpdesk.security.CustomOAuth2UserService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
 @EnableWebSecurity
+@RequiredArgsConstructor
 public class SecurityConfig {
 
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
+    private final CustomOAuth2UserService customOAuth2UserService;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
             .authorizeRequests(auth -> auth
-                .antMatchers("/", "/user/signup", "/user/signup/**", "/user/login", "/css/**", "/js/**").permitAll()
+                .antMatchers("/", "/user/signup", "/user/signup/**", "/user/login",
+                        "/oauth2/**", "/login/oauth2/**", "/css/**", "/js/**").permitAll()
                 .antMatchers("/statistics/**").hasRole("AGENT")
                 .anyRequest().authenticated()
             )
@@ -33,6 +32,11 @@ public class SecurityConfig {
                 .defaultSuccessUrl("/", true)
                 .failureUrl("/user/login?error=true")
                 .permitAll()
+            )
+            .oauth2Login(oauth2 -> oauth2
+                .loginPage("/user/login")
+                .userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserService))
+                .defaultSuccessUrl("/", true)
             )
             .logout(logout -> logout
                 .logoutUrl("/user/logout")

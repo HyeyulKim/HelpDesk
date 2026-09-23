@@ -1,3 +1,4 @@
+// Spring Boot 2.7.3 -> Spring Framework 5.3.22, Spring Security 5.7.x 자동 적용
 plugins {
 	id 'org.springframework.boot' version '2.7.3'
 	id 'io.spring.dependency-management' version '1.0.13.RELEASE'
@@ -21,6 +22,9 @@ repositories {
 dependencies {
 	// Web / View
 	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springframework.boot:spring-boot-starter-mail'   // 이메일 인증 발송용
+	implementation 'org.springframework.boot:spring-boot-starter-websocket'   // 실시간 알림(STOMP)용
+	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'   // 구글 로그인용
 	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'   // Thymeleaf
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
 
@@ -40,9 +44,13 @@ dependencies {
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.springframework.security:spring-security-test'
 
-	implementation 'org.springframework.boot:spring-boot-starter-mail'   // 이메일 인증 발송용
-	implementation 'org.springframework.boot:spring-boot-starter-websocket'   // 실시간 알림(STOMP)용
+	// VS Code "Test Runner for Java" 확장이 JUnit Platform 5.10+를 요구하므로
+	// Spring Boot 2.7.3 기본값(5.8.x)보다 명시적으로 올려서 버전 충돌 방지
+	testImplementation platform('org.junit:junit-bom:5.10.2')
 }
+
+// Spring Boot의 dependency-management가 JUnit 버전을 다시 낮추지 않도록 강제 고정
+ext['junit-jupiter.version'] = '5.10.2'
 
 test {
 	useJUnitPlatform()

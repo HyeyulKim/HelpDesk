@@ -12,23 +12,33 @@ spring:
     password: ${DB_PASSWORD}
     hikari:
       pool-name: HelpdeskHikariPool
-      maximum-pool-size: 10      # 풀에 유지할 최대 커넥션 수
-      minimum-idle: 2            # 유휴 상태로 유지할 최소 커넥션 수
-      connection-timeout: 3000   # 커넥션 획득 대기 시간(ms) - 테스트용으로 짧게
-      idle-timeout: 60000        # 유휴 커넥션 제거 시간(ms)
-      max-lifetime: 1800000      # 커넥션 최대 생존 시간(ms)
+      maximum-pool-size: 10
+      minimum-idle: 2
+      connection-timeout: 3000
+      idle-timeout: 60000
+      max-lifetime: 1800000
   thymeleaf:
     cache: false
   servlet:
     multipart:
       enabled: true
-      max-file-size: 10MB      # 파일 하나당 최대 크기
-      max-request-size: 30MB   # 한 번에 올릴 수 있는 전체 요청 크기 (여러 파일 합산)
+      max-file-size: 10MB
+      max-request-size: 30MB
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${GOOGLE_CLIENT_ID}
+            client-secret: ${GOOGLE_CLIENT_SECRET}
+            scope:
+              - email
+              - profile
 
 app:
   upload:
-    dir: uploads   # 첨부파일이 실제로 저장될 디렉토리
-  
+    dir: uploads
+
 mybatis:
   mapper-locations: classpath:mapper/**/*.xml
   configuration:
@@ -39,4 +49,4 @@ logging:
   level:
     "[com.helpdesk]": debug
     "[org.springframework.security]": debug
-    "[com.zaxxer.hikari]": debug   # HikariCP 풀 생성/커넥션 획득 로그 확인용
+    "[com.zaxxer.hikari]": debug
