@@ -8,8 +8,8 @@ spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:13306/helpdesk?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
-    username: scott
-    password: kosa1004
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
     hikari:
       pool-name: HelpdeskHikariPool
       maximum-pool-size: 10      # 풀에 유지할 최대 커넥션 수
