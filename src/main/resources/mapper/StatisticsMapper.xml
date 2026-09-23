@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.helpdesk.statistics.mapper.StatisticsMapper">
+
+    <select id="countAll" resultType="int">
+        SELECT COUNT(*) FROM requests
+    </select>
+
+    <select id="countByStatusName" resultType="int">
+        SELECT COUNT(*) FROM requests WHERE status = #{status}
+    </select>
+
+    <select id="countUnassigned" resultType="int">
+        SELECT COUNT(*) FROM requests WHERE assignee_id IS NULL
+    </select>
+
+    <select id="countGroupByStatus" resultType="com.helpdesk.statistics.dto.StatusCountDto">
+        SELECT status AS status, COUNT(*) AS count
+        FROM requests
+        GROUP BY status
+    </select>
+
+    <select id="countGroupByPriority" resultType="com.helpdesk.statistics.dto.PriorityCountDto">
+        SELECT priority AS priority, COUNT(*) AS count
+        FROM requests
+        GROUP BY priority
+    </select>
+
+    <select id="countGroupByAssignee" resultType="com.helpdesk.statistics.dto.AssigneeWorkloadDto">
+        SELECT u.name AS assigneeName, COUNT(*) AS count
+        FROM requests r
+        JOIN users u ON r.assignee_id = u.user_id
+        WHERE r.assignee_id IS NOT NULL
+        GROUP BY u.name
+        ORDER BY count DESC
+        LIMIT 10
+    </select>
+
+    <!-- 최근 N일간 "등록"된 문의를 날짜별로 집계 -->
+    <select id="dailyRegisteredTrend" resultType="com.helpdesk.statistics.dto.DailyCountDto">
+        SELECT DATE(created_at) AS date, COUNT(*) AS count
+        FROM requests
+        WHERE created_at >= DATE_SUB(CURDATE(), INTERVAL #{sinceDays} DAY)
+        GROUP BY DATE(created_at)
+        ORDER BY DATE(created_at)
+    </select>
+
+    <!-- 최근 N일간 "완료로 바뀐" 이력을 날짜별로 집계 (request_status_histories 활용) -->
+    <select id="dailyCompletedTrend" resultType="com.helpdesk.statistics.dto.DailyCountDto">
+        SELECT DATE(changed_at) AS date, COUNT(*) AS count
+        FROM request_status_histories
+        WHERE to_status = 'DONE'
+          AND changed_at >= DATE_SUB(CURDATE(), INTERVAL #{sinceDays} DAY)
+        GROUP BY DATE(changed_at)
+        ORDER BY DATE(changed_at)
+    </select>
+
+    <!-- 평균 대응 시간: 등록(NULL->WAITING) ~ 처리시작(->IN_PROGRESS) 사이 분(minute) 평균 -->
+    <select id="avgResponseMinutes" resultType="java.lang.Double">
+        SELECT AVG(TIMESTAMPDIFF(MINUTE, h1.changed_at, h2.changed_at))
+        FROM request_status_histories h1
+        JOIN request_status_histories h2 ON h1.request_id = h2.request_id
+        WHERE h1.from_status IS NULL AND h1.to_status = 'WAITING'
+          AND h2.to_status = 'IN_PROGRESS'
+          AND h2.changed_at > h1.changed_at
+    </select>
+
+    <!-- 평균 처리 시간: 처리시작(->IN_PROGRESS) ~ 완료(->DONE) 사이 분(minute) 평균 -->
+    <select id="avgResolutionMinutes" resultType="java.lang.Double">
+        SELECT AVG(TIMESTAMPDIFF(MINUTE, h1.changed_at, h2.changed_at))
+        FROM request_status_histories h1
+        JOIN request_status_histories h2 ON h1.request_id = h2.request_id
+        WHERE h1.to_status = 'IN_PROGRESS'
+          AND h2.to_status = 'DONE'
+          AND h2.changed_at > h1.changed_at
+    </select>
+
+</mapper>

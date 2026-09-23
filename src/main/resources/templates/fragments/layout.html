@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<body>
+
+<!-- CSRF meta 태그: 로그인한 화면의 <head> 안에서 가져다 씀 -->
+<th:block th:fragment="csrfMeta">
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+</th:block>
+
+<!-- 상단 네비게이션 바: 로그인한 모든 화면에서 동일 -->
+<nav th:fragment="navbar" class="navbar">
+    <a class="navbar-brand" th:href="@{/}">HelpDesk</a>
+    <div class="navbar-right">
+        <a class="nav-link" th:href="@{/requests}">문의함</a>
+        <a class="nav-link" th:href="@{/mypage}">마이페이지</a>
+        <a class="nav-link" th:href="@{/statistics}" sec:authorize="hasRole('AGENT')">통계</a>
+        <span class="navbar-user" sec:authorize="isAuthenticated()">
+            <span sec:authentication="name"></span>님
+        </span>
+        <div class="notif-wrapper">
+            <button type="button" id="notif-bell" class="notif-bell" aria-label="알림"
+                    th:attr="data-user-id=${#authentication.principal.user.userId}">
+                🔔<span id="notif-badge" class="notif-badge" style="display:none;"></span>
+            </button>
+            <div id="notif-dropdown" class="notif-dropdown">
+                <div id="notif-list" class="notif-list"></div>
+            </div>
+        </div>
+        <form th:action="@{/user/logout}" method="post" style="margin: 0;">
+            <button type="submit" class="btn-outline">로그아웃</button>
+        </form>
+    </div>
+</nav>
+
+<!-- 알림 관련 스크립트: </body> 직전에서 가져다 씀 -->
+<th:block th:fragment="notificationScripts">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.6.1/sockjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+    <script th:src="@{/js/notifications.js}"></script>
+</th:block>
+
+<!-- 상태 뱃지: statusBadge(status) 형태로 호출, status는 RequestStatus enum 값 -->
+<span th:fragment="statusBadge(status)" class="badge"
+      th:classappend="'badge-' + ${#strings.toLowerCase(status.name())}"
+      th:text="${status.name() == 'WAITING'} ? '대기' : (${status.name() == 'IN_PROGRESS'} ? '처리중' : '완료')">
+</span>
+
+<!-- 우선순위 뱃지: priorityBadge(priority) 형태로 호출, priority는 RequestPriority enum 값 -->
+<span th:fragment="priorityBadge(priority)" class="badge"
+      th:classappend="'badge-' + ${#strings.toLowerCase(priority.name())}"
+      th:text="${priority.name() == 'URGENT'} ? '긴급' : (${priority.name() == 'NORMAL'} ? '보통' : '낮음')">
+</span>
+
+</body>
+</html>

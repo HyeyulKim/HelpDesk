@@ -30,14 +30,16 @@ public class MyPageController {
 
         model.addAttribute("user", userDetails.getUser());
 
+        // "내가 등록한 문의" 섹션 페이징
         model.addAttribute("myRequests", requestService.getMyRequests(userId, myPage));
         model.addAttribute("myPage", myPage);
         model.addAttribute("myTotalPages", Math.max(requestService.getMyRequestsTotalPages(userId), 1));
 
-        boolean isAgentOrAdmin = (role == Role.AGENT || role == Role.ADMIN);
-        model.addAttribute("isAgentOrAdmin", isAgentOrAdmin);
+        // "내가 담당하는 문의" 섹션은 AGENT에게만 의미가 있음
+        boolean isAgent = (role == Role.AGENT);
+        model.addAttribute("isAgentOrAdmin", isAgent);
 
-        if (isAgentOrAdmin) {
+        if (isAgent) {
             model.addAttribute("assignedRequests", requestService.getAssignedRequests(userId, assignedPage));
             model.addAttribute("assignedPage", assignedPage);
             model.addAttribute("assignedTotalPages", Math.max(requestService.getAssignedRequestsTotalPages(userId), 1));

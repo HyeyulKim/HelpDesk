@@ -25,7 +25,7 @@ public class UserService {
             throw new IllegalStateException("이미 사용중인 이메일입니다.");
         }
 
-        // ADMIN은 회원가입 화면에서 선택 불가 (서버단 방어)
+        // 회원가입 화면에서는 USER/AGENT 중 선택
         Role role = (dto.getRole() == Role.AGENT) ? Role.AGENT : Role.USER;
 
         User user = User.builder()
@@ -37,5 +37,9 @@ public class UserService {
                 .build();
 
         userMapper.insertUser(user);
+    }
+
+    public boolean isEmailAvailable(String email) {
+        return userMapper.countByEmail(email) == 0;
     }
 }

@@ -5,6 +5,8 @@
     <title>문의 수정 - HelpDesk</title>
     <link rel="stylesheet" th:href="@{/css/layout.css}">
     <link rel="stylesheet" th:href="@{/css/auth.css}">
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
 </head>
 <body>
 
@@ -13,9 +15,19 @@
     <div class="navbar-right">
         <a class="nav-link" th:href="@{/requests}">문의함</a>
         <a class="nav-link" th:href="@{/mypage}">마이페이지</a>
+        <a class="nav-link" th:href="@{/statistics}" sec:authorize="hasRole('AGENT')">통계</a>
         <span class="navbar-user" sec:authorize="isAuthenticated()">
             <span sec:authentication="name"></span>님
         </span>
+        <div class="notif-wrapper">
+            <button type="button" id="notif-bell" class="notif-bell" aria-label="알림"
+                    th:attr="data-user-id=${#authentication.principal.user.userId}">
+                🔔<span id="notif-badge" class="notif-badge" style="display:none;"></span>
+            </button>
+            <div id="notif-dropdown" class="notif-dropdown">
+                <div id="notif-list" class="notif-list"></div>
+            </div>
+        </div>
         <form th:action="@{/user/logout}" method="post" style="margin: 0;">
             <button type="submit" class="btn-outline">로그아웃</button>
         </form>
@@ -58,5 +70,8 @@
 
 </div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.6.1/sockjs.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+<script th:src="@{/js/notifications.js}"></script>
 </body>
 </html>

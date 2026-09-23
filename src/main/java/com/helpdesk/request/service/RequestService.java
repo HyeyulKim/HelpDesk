@@ -7,6 +7,8 @@ import com.helpdesk.request.dto.RequestCreateDto;
 import com.helpdesk.request.dto.RequestDetailDto;
 import com.helpdesk.request.dto.RequestListItemDto;
 import com.helpdesk.request.mapper.RequestMapper;
+import com.helpdesk.notification.service.NotificationService;
+import com.helpdesk.statushistory.service.RequestStatusHistoryService;
 import com.helpdesk.user.domain.Role;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;
@@ -23,6 +25,8 @@ public class RequestService {
     private static final int PAGE_SIZE = 10;
 
     private final RequestMapper requestMapper;
+    private final RequestStatusHistoryService requestStatusHistoryService;
+    private final NotificationService notificationService;
 
     @Transactional
     public void createRequest(Long requesterId, RequestCreateDto dto) {
@@ -38,6 +42,7 @@ public class RequestService {
                 .build();
 
         requestMapper.insertRequest(request);
+        requestStatusHistoryService.recordCreation(request.getRequestId(), requesterId);
     }
 
     public List<RequestListItemDto> getRequests(RequestStatus status, RequestPriority priority, String keyword, int page) {
@@ -77,21 +82,24 @@ public class RequestService {
 
     /**
      * 문의 상태를 다음 단계로 변경한다 (대기 -> 처리중 -> 완료).
-     * 담당자(AGENT) 또는 관리자(ADMIN)만 변경할 수 있다.
+     * 담당자(AGENT)만 변경할 수 있다.
      */
     @Transactional
-    public void advanceStatus(Long requestId, Long currentUserId, Role currentUserRole) {
-        if (currentUserRole != Role.AGENT && currentUserRole != Role.ADMIN) {
-            throw new AccessDeniedException("담당자 또는 관리자만 상태를 변경할 수 있습니다.");
+    public void advanceStatus(Long requestId, Long currentUserId, String currentUserName, Role currentUserRole) {
+        if (currentUserRole != Role.AGENT) {
+            throw new AccessDeniedException("담당자만 상태를 변경할 수 있습니다.");
         }
 
         RequestDetailDto request = getRequestDetail(requestId);
-        RequestStatus nextStatus = request.getStatus().next();
+        RequestStatus currentStatus = request.getStatus();
+        RequestStatus nextStatus = currentStatus.next();
         if (nextStatus == null) {
             throw new IllegalStateException("이미 완료된 문의는 상태를 변경할 수 없습니다.");
         }
 
         requestMapper.updateStatus(requestId, nextStatus, currentUserId);
+        requestStatusHistoryService.recordStatusChange(requestId, currentStatus, nextStatus, currentUserId);
+        notificationService.notifyStatusChange(requestId, request.getRequesterId(), request.getTitle(), currentUserName, nextStatus);
     }
 
     /**
@@ -102,10 +110,9 @@ public class RequestService {
         RequestDetailDto request = getRequestDetail(requestId);
 
         boolean isOwner = request.getRequesterId().equals(currentUserId);
-        boolean isAdmin = currentUserRole == Role.ADMIN;
 
-        if (!isOwner && !isAdmin) {
-            throw new AccessDeniedException("작성자 본인 또는 관리자만 삭제할 수 있습니다.");
+        if (!isOwner) {
+            throw new AccessDeniedException("작성자 본인만 삭제할 수 있습니다.");
         }
 
         requestMapper.deleteById(requestId);
