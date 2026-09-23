@@ -4,6 +4,7 @@ import com.helpdesk.comment.domain.Comment;
 import com.helpdesk.comment.dto.CommentCreateDto;
 import com.helpdesk.comment.dto.CommentDto;
 import com.helpdesk.comment.mapper.CommentMapper;
+import com.helpdesk.notification.service.NotificationService;
 import com.helpdesk.request.dto.RequestDetailDto;
 import com.helpdesk.request.service.RequestService;
 import com.helpdesk.user.domain.Role;
@@ -22,6 +23,7 @@ public class CommentService {
 
     private final CommentMapper commentMapper;
     private final RequestService requestService;
+    private final NotificationService notificationService;
 
     public List<CommentDto> getComments(Long requestId) {
         return commentMapper.findByRequestId(requestId);
@@ -54,6 +56,10 @@ public class CommentService {
                 .build();
 
         commentMapper.insertComment(comment);
+
+        // 요청자가 쓰면 담당자에게, 담당자가 쓰면 요청자에게 (본인에게는 알림 안 보냄)
+        Long recipientId = isRequester ? request.getAssigneeId() : request.getRequesterId();
+        notificationService.notifyNewComment(requestId, recipientId, request.getTitle());
     }
 
     /**

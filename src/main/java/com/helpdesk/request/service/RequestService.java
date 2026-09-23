@@ -7,6 +7,7 @@ import com.helpdesk.request.dto.RequestCreateDto;
 import com.helpdesk.request.dto.RequestDetailDto;
 import com.helpdesk.request.dto.RequestListItemDto;
 import com.helpdesk.request.mapper.RequestMapper;
+import com.helpdesk.notification.service.NotificationService;
 import com.helpdesk.statushistory.service.RequestStatusHistoryService;
 import com.helpdesk.user.domain.Role;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +26,7 @@ public class RequestService {
 
     private final RequestMapper requestMapper;
     private final RequestStatusHistoryService requestStatusHistoryService;
+    private final NotificationService notificationService;
 
     @Transactional
     public void createRequest(Long requesterId, RequestCreateDto dto) {
@@ -83,7 +85,7 @@ public class RequestService {
      * 담당자(AGENT)만 변경할 수 있다.
      */
     @Transactional
-    public void advanceStatus(Long requestId, Long currentUserId, Role currentUserRole) {
+    public void advanceStatus(Long requestId, Long currentUserId, String currentUserName, Role currentUserRole) {
         if (currentUserRole != Role.AGENT) {
             throw new AccessDeniedException("담당자만 상태를 변경할 수 있습니다.");
         }
@@ -97,6 +99,7 @@ public class RequestService {
 
         requestMapper.updateStatus(requestId, nextStatus, currentUserId);
         requestStatusHistoryService.recordStatusChange(requestId, currentStatus, nextStatus, currentUserId);
+        notificationService.notifyStatusChange(requestId, request.getRequesterId(), request.getTitle(), currentUserName, nextStatus);
     }
 
     /**

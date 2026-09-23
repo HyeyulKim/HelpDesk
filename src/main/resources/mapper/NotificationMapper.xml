@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.helpdesk.notification.mapper.NotificationMapper">
+
+    <insert id="insertNotification" useGeneratedKeys="true" keyProperty="notificationId"
+            parameterType="com.helpdesk.notification.domain.Notification">
+        INSERT INTO notifications (user_id, request_id, type, message)
+        VALUES (#{userId}, #{requestId}, #{type}, #{message})
+    </insert>
+
+    <select id="findRecentByUserId" resultType="com.helpdesk.notification.dto.NotificationDto">
+        SELECT
+            n.notification_id AS notificationId,
+            n.request_id      AS requestId,
+            r.title           AS requestTitle,
+            n.type            AS type,
+            n.message         AS message,
+            n.is_read         AS `read`,
+            n.created_at      AS createdAt
+        FROM notifications n
+        JOIN requests r ON n.request_id = r.request_id
+        WHERE n.user_id = #{userId}
+        ORDER BY n.created_at DESC
+        LIMIT #{limit}
+    </select>
+
+    <select id="countUnread" resultType="int">
+        SELECT COUNT(*) FROM notifications WHERE user_id = #{userId} AND is_read = 0
+    </select>
+
+    <update id="markRead">
+        UPDATE notifications SET is_read = 1
+        WHERE notification_id = #{notificationId} AND user_id = #{userId}
+    </update>
+
+    <update id="markAllRead">
+        UPDATE notifications SET is_read = 1 WHERE user_id = #{userId} AND is_read = 0
+    </update>
+
+</mapper>
