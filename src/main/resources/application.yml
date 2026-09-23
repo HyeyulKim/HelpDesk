@@ -38,6 +38,13 @@ spring:
 app:
   upload:
     dir: uploads
+  mail:
+    verification-code-expire-minutes: 5
+    sender-email: ${GOOGLE_SENDER_EMAIL}
+    oauth:
+      client-id: ${GOOGLE_CLIENT_ID}
+      client-secret: ${GOOGLE_CLIENT_SECRET}
+      refresh-token: ${GOOGLE_OAUTH_REFRESH_TOKEN}
 
 mybatis:
   mapper-locations: classpath:mapper/**/*.xml
