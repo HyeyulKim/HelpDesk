@@ -8,11 +8,37 @@
         return;
     }
 
+    var MAX_FILE = 10 * 1024 * 1024;                  // 파일 하나당 10MB
+    var MAX_TOTAL = 30 * 1024 * 1024 - 100 * 1024;    // 한 번에 30MB (폼 항목 등 여유분 100KB)
+
     // 지금까지 고른 파일 (여러 번에 나눠서 골라도 여기에 계속 쌓임)
     var selected = [];
 
+    function toMB(bytes) {
+        return (bytes / 1024 / 1024).toFixed(1) + 'MB';
+    }
+
     function sizeText(bytes) {
         return (bytes / 1024).toFixed(1) + ' KB';   // 상세 화면과 같은 표기
+    }
+
+    function totalSize() {
+        return selected.reduce(function (sum, f) { return sum + f.size; }, 0);
+    }
+
+    // 안내 메시지 (서버가 보낸 메시지와 같은 #uploadError 자리를 씀)
+    function showError(message) {
+        var box = document.getElementById('uploadError');
+        if (!box) {
+            box = document.createElement('div');
+            box.id = 'uploadError';
+            box.className = 'alert alert-error';
+            box.style.whiteSpace = 'pre-line';
+            var anchor = pickBtn.parentNode;
+            anchor.parentNode.insertBefore(box, anchor);
+        }
+        box.textContent = message;
+        box.style.display = message ? '' : 'none';
     }
 
     // 화면에 쌓아둔 목록을 실제 전송용 input에 반영
@@ -45,6 +71,7 @@
                 if (pos > -1) {
                     selected.splice(pos, 1);
                 }
+                showError('');
                 sync();
                 render();
             });
@@ -65,14 +92,27 @@
     });
 
     input.addEventListener('change', function () {
+        var problems = [];
+
         Array.prototype.forEach.call(input.files, function (f) {
             var duplicated = selected.some(function (s) {
                 return s.name === f.name && s.size === f.size && s.lastModified === f.lastModified;
             });
-            if (!duplicated) {
-                selected.push(f);
+            if (duplicated) {
+                return;
             }
+            if (f.size > MAX_FILE) {
+                problems.push('"' + f.name + '" (' + toMB(f.size) + '): 파일 하나당 10MB를 넘어 추가하지 않았습니다.');
+                return;
+            }
+            if (totalSize() + f.size > MAX_TOTAL) {
+                problems.push('"' + f.name + '" (' + toMB(f.size) + '): 전체 30MB를 넘어 추가하지 않았습니다. (현재 선택 합계 ' + toMB(totalSize()) + ')');
+                return;
+            }
+            selected.push(f);
         });
+
+        showError(problems.join('\n'));
         sync();
         render();
     });

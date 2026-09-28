@@ -68,6 +68,10 @@
     <div class="attachment-section">
         <p class="section-title">첨부파일 <span class="comment-count" th:text="${#lists.size(attachments)}"></span></p>
 
+        <!-- 변경 1: 서버 안내 메시지 자리 -->
+        <div id="uploadError" class="alert alert-error" style="white-space:pre-line;"
+             th:if="${uploadError}" th:text="${uploadError}"></div>
+
         <ul class="attachment-list" th:if="${not #lists.isEmpty(attachments)}">
             <li class="attachment-item" th:each="file : ${attachments}">
                 <a class="attachment-name"
@@ -83,10 +87,11 @@
         </ul>
         <p class="attachment-empty" th:if="${#lists.isEmpty(attachments)}">첨부된 파일이 없습니다.</p>
 
+        <!-- 변경 2: th:action에 _csrf 추가 / 변경 3: 파일 입력에 data-max-check 추가 -->
         <form th:if="${currentUserId == request.requesterId}"
-              th:action="@{/requests/{id}/attachments(id=${request.requestId})}"
+              th:action="@{/requests/{id}/attachments(id=${request.requestId},_csrf=${_csrf.token})}"
               method="post" enctype="multipart/form-data" class="attachment-upload-form">
-            <input type="file" name="files" multiple>
+            <input type="file" name="files" multiple data-max-check>
             <button type="submit" class="btn-outline">업로드</button>
         </form>
     </div>
@@ -190,5 +195,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.6.1/sockjs.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
 <script th:src="@{/js/notifications.js}"></script>
+<!-- 변경 4: 업로드 용량 검사 스크립트 -->
+<script th:src="@{/js/upload-limit.js}"></script>
 </body>
 </html>
