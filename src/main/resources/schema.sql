@@ -28,7 +28,7 @@ CREATE TABLE IF NOT EXISTS comments (
     author_id BIGINT NOT NULL,
     content TEXT NOT NULL,
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT fk_comments_request FOREIGN KEY (request_id) REFERENCES requests (request_id),
+    CONSTRAINT fk_comments_request FOREIGN KEY (request_id) REFERENCES requests (request_id) ON DELETE CASCADE,
     CONSTRAINT fk_comments_author FOREIGN KEY (author_id) REFERENCES users (user_id)
 );
 
@@ -40,7 +40,16 @@ CREATE TABLE IF NOT EXISTS attachments (
     file_path VARCHAR(500) NOT NULL,
     file_size BIGINT NOT NULL,
     uploaded_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT fk_attachments_request FOREIGN KEY (request_id) REFERENCES requests (request_id)
+    CONSTRAINT fk_attachments_request FOREIGN KEY (request_id) REFERENCES requests (request_id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS email_verifications (
+    verification_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    email VARCHAR(100) NOT NULL,
+    code VARCHAR(6) NOT NULL,
+    verified TINYINT(1) NOT NULL DEFAULT 0,
+    expires_at DATETIME NOT NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE IF NOT EXISTS request_status_histories (
@@ -64,13 +73,4 @@ CREATE TABLE IF NOT EXISTS notifications (
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_notifications_user FOREIGN KEY (user_id) REFERENCES users (user_id),
     CONSTRAINT fk_notifications_request FOREIGN KEY (request_id) REFERENCES requests (request_id) ON DELETE CASCADE
-);
-
-CREATE TABLE IF NOT EXISTS email_verifications (
-    verification_id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    email VARCHAR(100) NOT NULL,
-    code VARCHAR(6) NOT NULL,
-    verified TINYINT(1) NOT NULL DEFAULT 0,
-    expires_at DATETIME NOT NULL,
-    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
