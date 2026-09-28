@@ -41,7 +41,8 @@
         <a class="btn-outline" th:href="@{/requests}" style="text-decoration:none;">목록으로</a>
     </div>
 
-    <form class="auth-form" th:action="@{/requests}" th:object="${requestCreateDto}" method="post">
+    <form id="requestForm" class="auth-form" th:action="@{/requests}" th:object="${requestCreateDto}"
+        method="post" enctype="multipart/form-data">
         <div class="form-group">
             <label for="title">제목</label>
             <input type="text" id="title" th:field="*{title}" placeholder="문의 제목을 입력하세요">
@@ -51,8 +52,8 @@
         <div class="form-group">
             <label for="content">내용</label>
             <textarea id="content" th:field="*{content}" rows="10"
-                      placeholder="문의 내용을 자세히 작성해주세요"
-                      style="padding: 10px 14px; border: 1px solid #dfe2e6; border-radius: 8px; font-size: 14px; font-family: inherit; resize: vertical; background:#fff;"></textarea>
+                    placeholder="문의 내용을 자세히 작성해주세요"
+                    style="padding: 10px 14px; border: 1px solid #dfe2e6; border-radius: 8px; font-size: 14px; font-family: inherit; resize: vertical; background:#fff;"></textarea>
             <p class="field-error" th:if="${#fields.hasErrors('content')}" th:errors="*{content}"></p>
         </div>
 
@@ -65,6 +66,19 @@
             </div>
         </div>
 
+        <div class="form-group">
+            <label>첨부파일 <span style="font-weight:400; color:#8a8f98;">(선택)</span></label>
+
+            <div class="attachment-picker">
+                <button type="button" class="btn-outline" id="pickFilesBtn">+ 파일 추가</button>
+                <span class="attachment-picker-hint">여러 번 나눠서 추가할 수 있습니다.</span>
+                <input type="file" id="files" name="files" multiple hidden>
+            </div>
+
+            <p class="attachment-empty" id="attachEmpty">선택한 파일이 없습니다.</p>
+            <ul class="attachment-list" id="attachList" style="display:none;"></ul>
+        </div>
+
         <button type="submit" class="btn-primary" style="width: 160px;">등록하기</button>
     </form>
 
@@ -73,5 +87,6 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.6.1/sockjs.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
 <script th:src="@{/js/notifications.js}"></script>
+<script th:src="@{/js/request-form-attachments.js}"></script>
 </body>
 </html>
