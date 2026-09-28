@@ -16,6 +16,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -59,6 +60,7 @@ public class RequestController {
     public String create(
             @Valid @ModelAttribute RequestCreateDto dto,
             BindingResult bindingResult,
+            @RequestParam(value = "files", required = false) List<MultipartFile> files,
             @AuthenticationPrincipal CustomUserDetails userDetails,
             Model model
     ) {
@@ -67,7 +69,12 @@ public class RequestController {
         }
 
         Long requesterId = userDetails.getUser().getUserId();
-        requestService.createRequest(requesterId, dto);
+        Long requestId = requestService.createRequest(requesterId, dto);
+
+        if (files != null && !files.isEmpty()) {
+            attachmentService.uploadAttachments(
+                    requestId, requesterId, userDetails.getUser().getRole(), files);
+        }
         return "redirect:/requests";
     }
 

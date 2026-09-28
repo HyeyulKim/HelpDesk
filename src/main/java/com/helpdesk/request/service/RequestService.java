@@ -29,7 +29,7 @@ public class RequestService {
     private final NotificationService notificationService;
 
     @Transactional
-    public void createRequest(Long requesterId, RequestCreateDto dto) {
+    public Long createRequest(Long requesterId, RequestCreateDto dto) {
         RequestPriority priority = (dto.getPriority() != null) ? dto.getPriority() : RequestPriority.NORMAL;
 
         Request request = Request.builder()
@@ -43,6 +43,7 @@ public class RequestService {
 
         requestMapper.insertRequest(request);
         requestStatusHistoryService.recordCreation(request.getRequestId(), requesterId);
+        return request.getRequestId();
     }
 
     public List<RequestListItemDto> getRequests(RequestStatus status, RequestPriority priority, String keyword, int page) {
